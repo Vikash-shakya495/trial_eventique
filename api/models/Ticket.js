@@ -10,9 +10,11 @@ const ticketSchema = new mongoose.Schema({
       eventdate: { type: Date, require: true },
       eventtime: { type: String, require: true },
       ticketprice: { type: Number, require: true },
+      totaltickets: { type: Number, required: true },
+      ticketId: { type: String, required: true },
       qr: { type: String, require: true },
    },
-   count: { type: Number, default: 0 },
+   quantity: { type: Number, default: 0 },
 });
 
 const TicketModel = mongoose.model(`Ticket`, ticketSchema);

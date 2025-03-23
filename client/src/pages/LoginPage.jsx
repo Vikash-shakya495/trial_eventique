@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import axios from 'axios'
 import { UserContext } from '../UserContext'
+import useUserStore from '../store'
 
 
 export default function LoginPage() {
@@ -10,7 +11,8 @@ export default function LoginPage() {
   const [redirect, setRedirect] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const {setUser} = useContext(UserContext);
+  // const {setUser} = useContext(UserContext);
+  const setUser = useUserStore((state) => state.setUser)
 
 
   //! Fetch users from the server --------------------------------------------------------------

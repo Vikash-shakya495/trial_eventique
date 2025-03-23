@@ -4,9 +4,11 @@ import {RiDeleteBinLine} from 'react-icons/ri'
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { UserContext } from "../UserContext";
+import useUserStore from "../store";
 
 export default function TicketPage() {
-    const {user} = useContext(UserContext);
+    // const {user} = useContext(UserContext);
+    const user = useUserStore((state) => state.user)
   
     const [userTickets, setUserTickets] = useState([]);
   
@@ -108,7 +110,7 @@ export default function TicketPage() {
                     Email: <span className="font-extrabold text-primarydark">{ticket.ticketDetails.email}</span>
                   </div>
                   <div>
-                    Ticket ID:<br /><span className="font-extrabold text-primarydark">{ticket.ticketDetails._id}</span>
+                    Ticket ID:<br /><span className="font-extrabold text-primarydark">{ticket.ticketDetails.ticketId}</span>
                   </div>
                 </div>
               </div>

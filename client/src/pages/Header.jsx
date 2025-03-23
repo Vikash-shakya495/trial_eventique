@@ -4,10 +4,13 @@ import {Link} from "react-router-dom";
 import { UserContext } from "../UserContext";
 import { RxExit } from 'react-icons/rx';
 import { BsFillCaretDownFill } from 'react-icons/bs';
+import useUserStore from "../store";
 
 
 export default function Header() {
-  const {user,setUser} = useContext(UserContext);
+  // const {user,setUser} = useContext(UserContext);
+  const user  = useUserStore((state) => state.user)
+  const setUser  = useUserStore((state) => state.setUser)
   const [isMenuOpen, setisMenuOpen] = useState(false);
   const [events, setEvents] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -74,21 +77,21 @@ export default function Header() {
           {/*------------------------- Search Functionality -------------------  */}
           {searchQuery && (
           <div className="p-2 w-144 z-10 absolute rounded left-[28.5%] top-14 md:w-[315px] md:left-[17%] md:top-16 lg:w-[540px] lg:left-[12%] lg:top-16 bg-white">
-            {/* Filter events based on the search query */}
-            {events
-              .filter((event) =>
-                event.title.toLowerCase().includes(searchQuery.toLowerCase())
-              )
-              .map((event) => (
-                <div key={event._id} className="p-2">
-                  {/* Display event details */}
-                  <Link to={"/event/" + event._id}>
-                      <div className="text-black text-lg w-full">{event.title}</div>
-                  </Link>
-                </div>
-              ))}
-          </div>
-          )}
+          {/* Filter events based on the search query */}
+          {events
+            .filter((event) => event.title.toLowerCase().includes(searchQuery.toLowerCase()))
+            .map((event) => (
+              <div key={event._id} className="p-2">
+                {/* Display event details */}
+                <Link to={`/event/${event._id}`}>
+                  <div className="text-black text-lg w-full">{event.title}</div>
+                </Link>
+              </div>
+            ))}
+        </div>
+          
+          )
+        }
     
           
           <Link to={'/createEvent'}> {/*TODO:Route create event page after creating it */}

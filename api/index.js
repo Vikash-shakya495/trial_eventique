@@ -8,6 +8,9 @@ const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const multer = require("multer");
 const path = require("path");
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
+const cloudinary = require("./config/cloudinary");
 
 const Ticket = require("./models/Ticket");
 
@@ -25,7 +28,11 @@ app.use(
    })
 );
 
-mongoose.connect(process.env.MONGO_URL);
+mongoose.connect(process.env.MONGO_URL).then(() => {
+   console.log("MongoDb Connected")
+}).catch((Err) => {
+   consol.log("MongoDb error occured : ",Err)
+});
 
 const storage = multer.diskStorage({
    destination: (req, file, cb) => {
@@ -43,13 +50,14 @@ app.get("/test", (req, res) => {
 });
 
 app.post("/register", async (req, res) => {
-   const { name, email, password } = req.body;
+   const { name, email, password, role } = req.body;
 
    try {
       const userDoc = await UserModel.create({
          name,
          email,
          password: bcrypt.hashSync(password, bcryptSalt),
+         role,
       });
       res.json(userDoc);
    } catch (e) {
@@ -91,8 +99,18 @@ app.get("/profile", (req, res) => {
    const { token } = req.cookies;
    if (token) {
       jwt.verify(token, jwtSecret, {}, async (err, userData) => {
-         if (err) throw err;
-         const { name, email, _id } = await UserModel.findById(userData.id);
+         if (err) {
+            return res.status(401).json({ error: "Invalid token" });
+         }
+
+         // Find the user by ID
+         const user = await UserModel.findById(userData.id);
+         if (!user) {
+            return res.status(404).json({ error: "User  not found" });
+         }
+
+         // Destructure user properties
+         const { name, email, _id } = user;
          res.json({ name, email, _id });
       });
    } else {
@@ -102,6 +120,77 @@ app.get("/profile", (req, res) => {
 
 app.post("/logout", (req, res) => {
    res.cookie("token", "").json(true);
+});
+
+app.post("/auth/forgot-password", async (req, res) => {
+   const { email } = req.body;
+
+   try {
+      const user = await UserModel.findOne({ email });
+      if (!user) {
+         return res.status(404).json({ error: "User  not found" });
+      }
+
+      // Generate a password reset token
+      const token = crypto.randomBytes(20).toString('hex');
+
+      // Set token and expiration on user
+      user.resetPasswordToken = token;
+      user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+
+      await user.save();
+
+      // Configure Nodemailer
+      const transporter = nodemailer.createTransport({
+         service: "Gmail",
+         auth: {
+            user: process.env.EMAIL_USER, // Your email
+            pass: process.env.EMAIL_PASS, // Your email password
+         },
+      });
+
+      const mailOptions = {
+         to: user.email,
+         from: process.env.EMAIL_USER,
+         subject: "Password Reset",
+         text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n` +
+               `Please click on the following link, or paste this into your browser to complete the process:\n\n` +
+               `http://localhost:5173/reset-password/${token}\n\n` +
+               `If you did not request this, please ignore this email and your password will remain unchanged.\n`,
+      };
+
+      await transporter.sendMail(mailOptions);
+      res.status(200).json({ message: "Password reset email sent" });
+   } catch (error) {
+      console.error("Error sending email:", error);
+      res.status(500).json({ error: "Failed to send email" });
+   }
+});
+
+app.post("/auth/reset-password/:token", async (req, res) => {
+   const { token } = req.params;
+   const { password } = req.body;
+
+   try {
+      const user = await UserModel.findOne({
+         resetPasswordToken: token,
+         resetPasswordExpires: { $gt: Date.now() },
+      });
+
+      if (!user) {
+         return res.status(400).json({ error: "Password reset token is invalid or has expired." });
+      }
+
+      user.password = bcrypt.hashSync(password, bcryptSalt);
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+
+      await user.save();
+      res.status(200).json({ message: "Password has been reset successfully." });
+   } catch (error) {
+      console.error("Error resetting password:", error);
+      res.status(500).json({ error: "Failed to reset password" });
+   }
 });
 
 const eventSchema = new mongoose.Schema({
@@ -125,15 +214,22 @@ const eventSchema = new mongoose.Schema({
 const Event = mongoose.model("Event", eventSchema);
 
 app.post("/createEvent", upload.single("image"), async (req, res) => {
-   try {
-      const eventData = req.body;
-      eventData.image = req.file ? req.file.path : "";
-      const newEvent = new Event(eventData);
-      await newEvent.save();
-      res.status(201).json(newEvent);
-   } catch (error) {
-      res.status(500).json({ error: "Failed to save the event to MongoDB" });
-   }
+  try {
+    const eventData = req.body;
+
+    // Upload image to Cloudinary
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path);
+      eventData.image = result.secure_url; // Store the secure URL of the uploaded image
+    }
+
+    const newEvent = new Event(eventData);
+    await newEvent.save();
+    res.status(201).json(newEvent);
+  } catch (error) {
+    console.error("Error creating event:", error);
+    res.status(500).json({ error: "Failed to save the event to MongoDB" });
+  }
 });
 
 app.get("/createEvent", async (req, res) => {
@@ -210,6 +306,12 @@ app.get("/event/:id/ordersummary/paymentsummary", async (req, res) => {
 app.post("/tickets", async (req, res) => {
    try {
       const ticketDetails = req.body;
+
+      // Ensure that the ticketDetails includes the quantity
+      if (!ticketDetails.ticketDetails.totaltickets) {
+         return res.status(400).json({ error: "Total tickets quantity is required." });
+      }
+
       const newTicket = new Ticket(ticketDetails);
       await newTicket.save();
       return res.status(201).json({ ticket: newTicket });
@@ -228,6 +330,7 @@ app.get("/tickets/:id", async (req, res) => {
       res.status(500).json({ error: "Failed to fetch tickets" });
    }
 });
+4
 
 app.get("/tickets/user/:userId", (req, res) => {
    const userId = req.params.userId;
