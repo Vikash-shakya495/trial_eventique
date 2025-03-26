@@ -44,8 +44,8 @@ export default function LoginPage() {
         }
 
         setRedirect(true)
-      }catch(e){
-        alert('Login failed');
+      }catch(ev){
+        alert('Login failed',ev);
       }
   }
 

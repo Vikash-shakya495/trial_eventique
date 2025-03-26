@@ -40,6 +40,36 @@ export default function PaymentSummary() {
   const [redirect, setRedirect] = useState('');
   const [ticketId, setTicketId] = useState(''); // State to hold the generated ticketId
 
+
+
+  // Function to send confirmation email
+  const sendConfirmationEmail = (to, ticketDetails) => {
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to,
+      subject: 'Ticket Confirmation',
+      text: `Your ticket for ${ticketDetails.eventname} has been confirmed. Ticket ID: ${ticketDetails.ticketId}`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email:", error);
+      } else {
+        console.log('Email sent: ' + info.response);
+      }
+    });
+  };
+
+  // Function to generate ticketId
+  const generateTicketId = (eventName) => {
+    const prefix = eventName.substring(0, 2).toUpperCase(); // First 2 letters of event name
+    const randomNum = Math.floor(1000 + Math.random() * 9000); // Random 4-digit number
+    return `${prefix}${randomNum}`; // Combine them
+  };
+
+  console.log("Generated Ticket ID:", ticketId);
+
+
   useEffect(() => {
     if (!id) {
       return;
@@ -103,10 +133,10 @@ export default function PaymentSummary() {
         ticketDetails.ticketDetails.eventname,
         ticketDetails.ticketDetails.name
       );
-      // Ensure ticketId is generated and not empty
+
       if (!ticketId) {
         console.error("Ticket ID is not generated.");
-        return; // Prevent ticket creation if ticketId is not valid
+        return;
       }
 
       const updatedTicketDetails = {
@@ -114,15 +144,48 @@ export default function PaymentSummary() {
         ticketDetails: {
           ...ticketDetails.ticketDetails,
           qr: qrCode,
-          totaltickets: ticketQuantity, // Ensure quantity is included
-          ticketId: ticketId, // Include the ticketId here
+          totaltickets: ticketQuantity,
+          ticketId: ticketId,
         }
       };
 
-      const response = await axios.post(`/tickets`, updatedTicketDetails);
-      alert("Ticket Created");
-      setRedirect(true);
-      console.log('Success creating ticket', updatedTicketDetails);
+      // Create a payment order on the server
+      const paymentResponse = await axios.post('/create-order', {
+        amount: event.ticketPrice * ticketQuantity * 100, // Amount in paise
+        currency: 'INR',
+        receipt: ticketId,
+      });
+
+      const options = {
+        key: 'rzp_test_OSKdN4h2nzFfxv', // Enter the Key ID generated from the Razorpay Dashboard
+        amount: paymentResponse.data.amount, // Amount is in currency subunits. Default currency is INR. Hence, 100 refers to 100 paise or ₹1.
+        currency: paymentResponse.data.currency,
+        name: event.title,
+        description: 'Ticket Purchase',
+        order_id: paymentResponse.data.id, // This is the order_id created in the previous step
+        handler: async function (response) {
+          // Call your backend to save the ticket details
+          const response = await axios.post(`/tickets`, updatedTicketDetails);
+          console.log(updatedTicketDetails);
+
+          // Send confirmation email
+          sendConfirmationEmail(details.email, updatedTicketDetails.ticketDetails);
+
+          alert("Ticket Created");
+          setRedirect(true);
+        },
+        prefill: {
+          name: details.name,
+          email: details.email,
+          contact: details.contactNo,
+        },
+        theme: {
+          color: '#F37254',
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     } catch (error) {
       console.error('Error creating ticket:', error);
     }
@@ -140,18 +203,13 @@ export default function PaymentSummary() {
     }
   }
 
-  // Function to generate ticketId
-  const generateTicketId = (eventName) => {
-    const prefix = eventName.substring(0, 2).toUpperCase(); // First 2 letters of event name
-    const randomNum = Math.floor(1000 + Math.random() * 9000); // Random 4-digit number
-    return `${prefix}${randomNum}`; // Combine them
-  };
 
-  console.log("Generated Ticket ID:", ticketId);
-  
+
   if (redirect) {
     return <Navigate to={'/wallet'} />;
   }
+
+  if (!event) return '';
 
   return (
     <>
@@ -263,7 +321,9 @@ export default function PaymentSummary() {
           <hr className="my-2 border-t pt-2 border-gray-400" />
           <p className="float-right font-bold">LKR. {event.ticketPrice}</p>
           <p className="font-bold">Sub total: {event.ticketPrice}</p>
-          <p className="font-bold">Ticket ID: {ticketId}</p> {/* Display the ticketId here */}
+          {/* <p className="font-bold">Ticket ID: {ticketId}</p>
+          <p className="font-bold">Organizer: {event.organizedBy.name}</p> {/* Display organizer's name */}
+          {/* <p className="font-bold">Organizer Email: {event.organizedBy.email}</p> Display organizer's email */}
         </div>
       </div>
     </>

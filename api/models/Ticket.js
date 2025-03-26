@@ -8,6 +8,7 @@ const ticketSchema = new mongoose.Schema({
       email: { type: String, require: true },
       eventname: { type: String, require: true },
       eventdate: { type: Date, require: true },
+      organizedBy: { type: mongoose.Schema.Types.ObjectId, ref: "Organiser" }, // Reference to Organiser,
       eventtime: { type: String, require: true },
       ticketprice: { type: Number, require: true },
       totaltickets: { type: Number, required: true },

@@ -9,5 +9,5 @@ const UserSchema = new mongoose.Schema({
    role: { type: String, enum: ['user', 'organizer', 'admin'], default: 'user' }, // Added role field
 });
 
-const UserModel = mongoose.model("User ", UserSchema);
+const UserModel = mongoose.model("User", UserSchema);
 module.exports = UserModel;

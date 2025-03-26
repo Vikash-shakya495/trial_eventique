@@ -16,6 +16,9 @@ import CalendarView from './pages/CalendarView'
 import OrderSummary from './pages/OrderSummary'
 import PaymentSummary from './pages/PaymentSummary'
 import TicketPage from './pages/TicketPage'
+import AdminDashboard from './pages/AdminDashboard'
+import OrganizerDashboard from './pages/OrganizerDashboard'
+import UserProfile from './pages/UserProfile'
 
 axios.defaults.baseURL = 'http://localhost:4000/'
 axios.defaults.withCredentials = true
@@ -23,6 +26,7 @@ axios.defaults.withCredentials = true
 function App() {
   const fetchUser = useUserStore((state) => state.fetchUser)
 
+  console.log(fetchUser);
   useEffect(() => {
     fetchUser() // User data ko fetch karne ke liye
   }, [fetchUser])
@@ -33,6 +37,9 @@ function App() {
         <Route index element={<IndexPage />} />
         <Route path='/useraccount' element={<UserAccountPage />} />
         <Route path='/createEvent' element={<AddEvent />} />
+        <Route path='/dashboard' element={<UserProfile />} />
+        <Route path='/admin/dashboard' element={<AdminDashboard />} />
+        <Route path='/organizer/dashboard' element={<OrganizerDashboard />} />
         <Route path='/event/:id' element={<EventPage />} />
         <Route path='/calendar' element={<CalendarView />} />
         <Route path='/wallet' element={<TicketPage />} />

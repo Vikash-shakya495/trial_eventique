@@ -15,6 +15,7 @@ export default function CalendarView() {
     
     axios.get("/events").then((response) => {
       setEvents(response.data);
+      console.log(response.data)
     }).catch((error) => {
       console.error("Error fetching events:", error);
     });
@@ -47,7 +48,7 @@ export default function CalendarView() {
             <div key={day} className="p-2 font-semibold bg-white ring-4 ring-background">{day}</div>
           ))}
         </div>
-        <div className="grid grid-cols-7 ">
+        <div className="grid grid-cols-7">
           {
           emptyCells.concat(daysInMonth.map((date) => (
             <div key={date.toISOString()} className="p-2 relative top-0 pb-20 sm:pb-24 ring-4 bg-white ring-background flex flex-col items-start justify-start">

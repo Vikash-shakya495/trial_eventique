@@ -19,6 +19,7 @@ export default function RegisterPage() {
     }
 
     try {
+      console.log("Registering user with data:", { name, email, password, role }); // Log the data
       await axios.post('/register', {
         name,
         email,
@@ -28,7 +29,8 @@ export default function RegisterPage() {
       alert('Registration Successful');
       setRedirect(true);
     } catch (e) {
-      alert('Registration failed');
+      console.error("Registration Error", e.response?.data || e.message); // Log the error
+      alert('Registration failed: ' + (e.response?.data?.error || 'Unknown error'));
     }
   }
 

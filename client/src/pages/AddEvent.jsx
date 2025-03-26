@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import useUserStore from "../store";
 
@@ -7,6 +7,7 @@ export default function AddEvent() {
   const [formData, setFormData] = useState({
     owner: user ? user.name : "",
     title: "",
+    email: user ? user.email : "",
     optional: "",
     description: "",
     organizedBy: "",
@@ -14,7 +15,7 @@ export default function AddEvent() {
     eventTime: "",
     location: "",
     ticketPrice: 0,
-    image: null, // Change to null initially
+    image: null,
     likes: 0
   });
 
@@ -31,21 +32,21 @@ export default function AddEvent() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formDataToSend = new FormData();
-    
-    // Append all form data to FormData object
-    for (const key in formData) {
+
+    // Append fields to FormData
+    Object.keys(formData).forEach((key) => {
       formDataToSend.append(key, formData[key]);
-    }
+    });
 
     try {
-      const response = await axios.post("/createEvent", formDataToSend, {
+      const response = await axios.post("/createEvent", formDataToSend,{
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          "Content-Type": "multipart/form-data",
+          },
       });
       console.log("Event posted successfully:", response.data);
     } catch (error) {
-      console.error("Error posting event:", error);
+      console.error("Error posting event:", error.response?.data || error.message);
     }
   };
 
@@ -55,7 +56,7 @@ export default function AddEvent() {
       <form onSubmit={handleSubmit} className='flex flex-col gap-5'>
         <label>
           Title:
-          <input type="text" name="title" value={formData.title} onChange={handleChange} />
+          <input type="text" name="title" value={formData.title} onChange={handleChange} required />
         </label>
         <label>
           Optional:
@@ -63,31 +64,31 @@ export default function AddEvent() {
         </label>
         <label>
           Description:
-          <textarea name="description" value={formData.description} onChange={handleChange} />
+          <textarea name="description" value={formData.description} onChange={handleChange} required />
         </label>
         <label>
           Organized By:
-          <input type="text" name="organizedBy" value={formData.organizedBy} onChange={handleChange} />
+          <input type="text" name="organizedBy" value={formData.organizedBy} onChange={handleChange} required />
         </label>
         <label>
           Event Date:
-          <input type="date" name="eventDate" value={formData.eventDate} onChange={handleChange} />
+          <input type="date" name="eventDate" value={formData.eventDate} onChange={handleChange} required />
         </label>
         <label>
           Event Time:
-          <input type="time" name="eventTime" value={formData.eventTime} onChange={handleChange} />
+          <input type="time" name="eventTime" value={formData.eventTime} onChange={handleChange} required />
         </label>
         <label>
           Location:
-          <input type="text" name="location" value={formData.location} onChange={handleChange} />
+          <input type="text" name="location" value={formData.location} onChange={handleChange} required />
         </label>
         <label>
           Ticket Price:
-          <input type="number" name="ticketPrice" value={formData.ticketPrice} onChange={handleChange} />
+          <input type="number" name="ticketPrice" value={formData.ticketPrice} onChange={handleChange} required />
         </label>
         <label>
           Image:
-          <input type="file" name="image" onChange={handleImageUpload} />
+          <input type="file" name="image" onChange={handleImageUpload} accept="image/*" required />
         </label>
         <button type="submit">Submit</button>
       </form>
