@@ -41,24 +41,31 @@ export default function PaymentSummary() {
   const [ticketId, setTicketId] = useState(''); // State to hold the generated ticketId
 
 
+//   const transporter = nodemailer.createTransport({
+//     service: 'Gmail', // Use your email service
+//     auth: {
+//         user: process.env.EMAIL_USER, // Your email
+//         pass: process.env.EMAIL_PASS, // Your email password
+//     },
+// });
 
   // Function to send confirmation email
-  const sendConfirmationEmail = (to, ticketDetails) => {
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to,
-      subject: 'Ticket Confirmation',
-      text: `Your ticket for ${ticketDetails.eventname} has been confirmed. Ticket ID: ${ticketDetails.ticketId}`,
-    };
+  // const sendConfirmationEmail = (to, ticketDetails) => {
+  //   const mailOptions = {
+  //     from: 'vikashshakya735@gmail.com',
+  //     to,
+  //     subject: 'Ticket Confirmation',
+  //     text: `Your ticket for ${ticketDetails.eventname} has been confirmed. Ticket ID: ${ticketDetails.ticketId}`,
+  //   };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error("Error sending email:", error);
-      } else {
-        console.log('Email sent: ' + info.response);
-      }
-    });
-  };
+  //   transporter.sendMail(mailOptions, (error, info) => {
+  //     if (error) {
+  //       console.error("Error sending email:", error);
+  //     } else {
+  //       console.log('Email sent: ' + info.response);
+  //     }
+  //   });
+  // };
 
   // Function to generate ticketId
   const generateTicketId = (eventName) => {
@@ -68,6 +75,23 @@ export default function PaymentSummary() {
   };
 
   console.log("Generated Ticket ID:", ticketId);
+
+  useEffect(() => {
+    const loadRazorpayScript = () => {
+      return new Promise((resolve) => {
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.onload = () => {
+          resolve(true);
+        };
+        document.body.appendChild(script);
+      });
+    };
+
+    loadRazorpayScript().then(() => {
+      console.log('Razorpay script loaded');
+    });
+  }, []);
 
 
   useEffect(() => {
@@ -129,67 +153,72 @@ export default function PaymentSummary() {
   const createTicket = async (e) => {
     e.preventDefault();
     try {
-      const qrCode = await generateQRCode(
-        ticketDetails.ticketDetails.eventname,
-        ticketDetails.ticketDetails.name
-      );
+        const qrCode = await generateQRCode(
+            ticketDetails.ticketDetails.eventname,
+            ticketDetails.ticketDetails.name
+        );
 
-      if (!ticketId) {
-        console.error("Ticket ID is not generated.");
-        return;
-      }
-
-      const updatedTicketDetails = {
-        ...ticketDetails,
-        ticketDetails: {
-          ...ticketDetails.ticketDetails,
-          qr: qrCode,
-          totaltickets: ticketQuantity,
-          ticketId: ticketId,
+        if (!ticketId) {
+            console.error("Ticket ID is not generated.");
+            return;
         }
-      };
 
-      // Create a payment order on the server
-      const paymentResponse = await axios.post('/create-order', {
-        amount: event.ticketPrice * ticketQuantity * 100, // Amount in paise
-        currency: 'INR',
-        receipt: ticketId,
-      });
+        const updatedTicketDetails = {
+            ...ticketDetails,
+            ticketDetails: {
+                ...ticketDetails.ticketDetails,
+                qr: qrCode,
+                totaltickets: ticketQuantity,
+                ticketId: ticketId,
+                email: details.email, 
+            }
+        };
 
-      const options = {
-        key: 'rzp_test_OSKdN4h2nzFfxv', // Enter the Key ID generated from the Razorpay Dashboard
-        amount: paymentResponse.data.amount, // Amount is in currency subunits. Default currency is INR. Hence, 100 refers to 100 paise or ₹1.
-        currency: paymentResponse.data.currency,
-        name: event.title,
-        description: 'Ticket Purchase',
-        order_id: paymentResponse.data.id, // This is the order_id created in the previous step
-        handler: async function (response) {
-          // Call your backend to save the ticket details
-          const response = await axios.post(`/tickets`, updatedTicketDetails);
-          console.log(updatedTicketDetails);
+        // Create a payment order on the server
+        const paymentResponse = await axios.post('/create-order', {
+            amount: event.ticketPrice * ticketQuantity * 100, // Amount in paise
+            currency: 'INR',
+            receipt: ticketId,
+        });
 
-          // Send confirmation email
-          sendConfirmationEmail(details.email, updatedTicketDetails.ticketDetails);
+        const options = {
+            key: 'rzp_test_aNekzbf3DEXHpA', // Enter the Key ID generated from the Razorpay Dashboard
+            amount: paymentResponse.data.amount, // Amount is in currency subunits. Default currency is INR. Hence, 100 refers to 100 paise or ₹1.
+            currency: paymentResponse.data.currency,
+            name: event.title,
+            description: 'Ticket Purchase',
+            order_id: paymentResponse.data.id, // This is the order_id created in the previous step
+            handler: async () => {
+                // Call your backend to save the ticket details
+                await axios.post(`/tickets`, updatedTicketDetails).then(() => {
+                  console.log('ticket is send to create')
+                }).catch((err) => {
+                  console.log('ticket is not going to create', err)
+                });
+                console.log("updated ticketDetails : ",updatedTicketDetails.ticketDetails);
+                
+                // Send confirmation email
+                // sendConfirmationEmail(details.email, updatedTicketDetails.ticketDetails);
 
-          alert("Ticket Created");
-          setRedirect(true);
-        },
-        prefill: {
-          name: details.name,
-          email: details.email,
-          contact: details.contactNo,
-        },
-        theme: {
-          color: '#F37254',
-        },
-      };
+                alert("Ticket Created");
+                setRedirect(true);
+            },
+            prefill: {
+                name: details.name,
+                email: details.email,
+                contact: details.contactNo,
+            },
+            theme: {
+                color: '#F37254',
+            },
+        };
 
-      const rzp = new window.Razorpay(options);
-      rzp.open();
+        const rzp = new window.Razorpay(options);
+        rzp.open();
     } catch (error) {
-      console.error('Error creating ticket:', error);
+        console.error('Error creating ticket:', error);
     }
-  };
+};
 
   async function generateQRCode(name, eventName) {
     try {

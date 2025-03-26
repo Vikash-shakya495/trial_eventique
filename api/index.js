@@ -63,8 +63,8 @@ app.post("/register", async (req, res) => {
 
    try {
       // Check if the email already exists
-      const existingUser  = await UserModel.findOne({ email });
-      if (existingUser ) {
+      const existingUser = await UserModel.findOne({ email });
+      if (existingUser) {
          return res.status(400).json({ error: "Email already in use." });
       }
 
@@ -147,7 +147,7 @@ app.get("/profile", (req, res) => {
    }
 });
 
-app.get('/organizers',async(req,res) => {
+app.get('/organizers', async (req, res) => {
 
 })
 
@@ -155,7 +155,7 @@ app.get("/organizers/:email", async (req, res) => {
    const { email } = req.params;
 
    try {
-      const organizer = await OrganiserModel.findOne({email: email});
+      const organizer = await OrganiserModel.findOne({ email: email });
       if (!organizer) {
          return res.status(404).json({ message: "Organizer not found" });
       }
@@ -262,7 +262,7 @@ const eventSchema = new mongoose.Schema({
    refunds: { type: Number, default: 0 },
    createdAt: { type: Date, default: Date.now },
    description: String,
-   organizedBy: { type: String}, // Reference to Organiser,
+   organizedBy: { type: String }, // Reference to Organiser,
    eventDate: Date,
    eventTime: String,
    location: String,
@@ -379,7 +379,7 @@ app.get("/events", async (req, res) => {
 
    try {
       const events = await Event.find();
-      res.json({events});
+      res.json({ events });
    } catch (error) {
       console.error("Error fetching events:", error);
       res.status(500).json({ message: "Server error" });
@@ -491,32 +491,83 @@ app.get("/organizers/dashboard-stats", async (req, res) => {
    }
 });
 
+
+const transporter = nodemailer.createTransport({
+   service: 'Gmail', // Use your email service
+   auth: {
+       user: process.env.EMAIL_USER, // Your email
+       pass: process.env.EMAIL_PASS, // Your email password
+   },
+});
+
+
+const sendConfirmationEmail = (to, ticketDetails) => {
+   const mailOptions = {
+       from: process.env.EMAIL_USER,
+       to,
+       subject: '🎟️ Ticket Confirmation - Your Booking is Confirmed!',
+       html: `
+            <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+                <h2 style="color: #4CAF50;">Your Ticket has been Confirmed!</h2>
+                <p>Thank you for your purchase! Here are your ticket details:</p>
+                <ul>
+                    <li><strong>Event Name:</strong> ${ticketDetails.eventname}</li>
+                    <li><strong>Ticket ID:</strong> ${ticketDetails.ticketId}</li>
+                    <li><strong>Event Date:</strong> ${ticketDetails.eventdate}</li>
+                    <li><strong>Event Time:</strong> ${ticketDetails.eventtime}</li>
+                    <li><strong>Total Tickets:</strong> ${ticketDetails.totaltickets}</li>
+                    <li><strong>Price:</strong> LKR ${ticketDetails.ticketprice}</li>
+                </ul>
+                <h3>Your QR Code:</h3>
+                <img src="${ticketDetails.qr}" alt="QR Code" style="width: 200px; height: auto; border: 1px solid #ddd; border-radius: 4px;">
+                <p style="margin-top: 20px;">We look forward to seeing you at the event!</p>
+                <p style="color: #888;">If you have any questions, feel free to contact us.</p>
+            </div>
+        `,
+   };
+
+   transporter.sendMail(mailOptions, (error, info) => {
+       if (error) {
+           console.error("Error sending email:", error);
+       } else {
+           console.log('Email sent: ' + info.response);
+       }
+   });
+};
+
 app.post("/tickets", async (req, res) => {
    try {
-      const ticketDetails = req.body;
+       const ticketDetails = req.body;
 
-      // Ensure that the ticketDetails includes the quantity
-      if (!ticketDetails.ticketDetails.totaltickets) {
-         return res.status(400).json({ error: "Total tickets quantity is required." });
-      }
+       // Log incoming ticket details for debugging
+       console.log("Incoming ticket details:", ticketDetails);
 
-      const newTicket = new Ticket(ticketDetails);
-      await newTicket.save();
+       // Ensure that the ticketDetails includes the quantity
+       if (!ticketDetails.ticketDetails.totaltickets) {
+           return res.status(400).json({ error: "Total tickets quantity is required." });
+       }
 
-      // Update the corresponding event
-      const event = await Event.findById(ticketDetails.eventid);
-      if (event) {
-         event.ticketSold += ticketDetails.ticketDetails.totaltickets; // Increment ticket sold
-         event.Income += ticketDetails.ticketDetails.totaltickets * event.ticketPrice; // Update income
-         await event.save();
-      }
+       const newTicket = new Ticket(ticketDetails);
+       await newTicket.save();
 
-      return res.status(201).json({ ticket: newTicket });
+       // Update the corresponding event
+       const event = await Event.findById(ticketDetails.eventid);
+       if (event) {
+           event.ticketSold += ticketDetails.ticketDetails.totaltickets; // Increment ticket sold
+           event.Income += ticketDetails.ticketDetails.totaltickets * event.ticketPrice; // Update income
+           await event.save();
+       }
+
+        // Send confirmation email
+        sendConfirmationEmail(ticketDetails.ticketDetails.email, ticketDetails.ticketDetails);
+
+       return res.status(201).json({ ticket: newTicket });
    } catch (error) {
-      console.error("Error creating ticket:", error);
-      return res.status(500).json({ error: "Failed to create ticket" });
+       console.error("Error creating ticket:", error); // Log the error
+       return res.status(500).json({ error: "Failed to create ticket" });
    }
 });
+
 
 
 const razorpay = new Razorpay({
@@ -528,31 +579,30 @@ app.post('/create-order', async (req, res) => {
    const { amount, currency, receipt } = req.body;
 
    const options = {
-       amount, // amount in the smallest currency unit
-       currency,
-       receipt,
+      amount, // amount in the smallest currency unit
+      currency,
+      receipt,
    };
 
    try {
-       const order = await razorpay.orders.create(options);
-       res.json(order);
+      const order = await razorpay.orders.create(options);
+      res.json(order);
    } catch (error) {
-       console.error("Error creating Razorpay order:", error);
-       res.status(500).json({ error: "Failed to create order" });
+      console.error("Error creating Razorpay order:", error);
+      res.status(500).json({ error: "Failed to create order" });
    }
 });
 
 
-const transporter = nodemailer.createTransport({
-   service: 'Gmail', // Use your email service
-   auth: {
-       user: process.env.EMAIL_USER, // Your email
-       pass: process.env.EMAIL_PASS, // Your email password
-   },
+
+
+app.get('/test-email', (req, res) => {
+   sendConfirmationEmail('vikashshakya735@example.com', {
+      eventname: 'Sample Event',
+      ticketId: 'TICKET1234'
+   });
+   res.send('Email sent!');
 });
-
-
-
 
 app.get("/tickets/:id", async (req, res) => {
    try {
