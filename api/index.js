@@ -191,13 +191,13 @@ app.post("/auth/forgot-password", async (req, res) => {
          return res.status(404).json({ error: "User  not found" });
       }
 
-      // Generate a password reset token
-      const token = crypto.randomBytes(20).toString('hex');
+      // Generate a random OTP
+      const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
+      const otpExpires = Date.now() + 300000; // OTP valid for 5 minutes
 
-      // Set token and expiration on user
-      user.resetPasswordToken = token;
-      user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
-
+      // Store OTP and its expiration in the user document
+      user.resetPasswordOtp = otp;
+      user.resetPasswordOtpExpires = otpExpires;
       await user.save();
 
       // Configure Nodemailer
@@ -212,11 +212,8 @@ app.post("/auth/forgot-password", async (req, res) => {
       const mailOptions = {
          to: user.email,
          from: process.env.EMAIL_USER,
-         subject: "Password Reset",
-         text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n` +
-            `Please click on the following link, or paste this into your browser to complete the process:\n\n` +
-            `http://localhost:5173/reset-password/${token}\n\n` +
-            `If you did not request this, please ignore this email and your password will remain unchanged.\n`,
+         subject: "Password Reset OTP",
+         text: `Your OTP for password reset is: ${otp}. It is valid for 5 minutes.`,
       };
 
       await transporter.sendMail(mailOptions);
@@ -227,29 +224,53 @@ app.post("/auth/forgot-password", async (req, res) => {
    }
 });
 
-app.post("/auth/reset-password/:token", async (req, res) => {
-   const { token } = req.params;
-   const { password } = req.body;
+app.post("/auth/verify-otp", async (req, res) => {
+   const { email, otp } = req.body;
 
    try {
-      const user = await UserModel.findOne({
-         resetPasswordToken: token,
-         resetPasswordExpires: { $gt: Date.now() },
-      });
+       const user = await UserModel.findOne({ email });
+       if (!user) {
+           return res.status(404).json({ error: "User  not found" });
+       }
 
-      if (!user) {
-         return res.status(400).json({ error: "Password reset token is invalid or has expired." });
-      }
+       // Check if the OTP is valid and not expired
+       if (user.resetPasswordOtp !== otp || Date.now() > user.resetPasswordOtpExpires) {
+           return res.status(400).json({ error: "Invalid or expired OTP" });
+       }
 
-      user.password = bcrypt.hashSync(password, bcryptSalt);
-      user.resetPasswordToken = undefined;
-      user.resetPasswordExpires = undefined;
-
-      await user.save();
-      res.status(200).json({ message: "Password has been reset successfully." });
+       // OTP is valid, allow the user to reset their password
+       res.status(200).json({ message: "OTP verified. You can now reset your password." });
    } catch (error) {
-      console.error("Error resetting password:", error);
-      res.status(500).json({ error: "Failed to reset password" });
+       console.error("Error verifying OTP:", error);
+       res.status(500).json({ error: "Failed to verify OTP" });
+   }
+});
+
+app.post("/auth/reset-password", async (req, res) => {
+   console.log("Request Body:", req.body);
+   const { email, otp, password } = req.body;
+
+   try {
+       const user = await UserModel.findOne({ email });
+       if (!user) {
+           return res.status(404).json({ error: "User  not found" });
+       }
+
+       // Check if the OTP is valid and not expired
+       if (user.resetPasswordOtp !== otp || Date.now() > user.resetPasswordOtpExpires) {
+           return res.status(400).json({ error: "Invalid or expired OTP" });
+       }
+
+       // Update the password
+       user.password = bcrypt.hashSync(password, bcryptSalt);
+       user.resetPasswordOtp = undefined; // Clear the OTP
+       user.resetPasswordOtpExpires = undefined; // Clear the expiration
+       await user.save();
+
+       res.status(200).json({ message: "Password has been reset successfully." });
+   } catch (error) {
+       console.error("Error resetting password:", error);
+       res.status(500).json({ error: "Failed to reset password" });
    }
 });
 
@@ -376,7 +397,6 @@ app.post("/event/:eventId", (req, res) => {
 });
 
 app.get("/events", async (req, res) => {
-
    try {
       const events = await Event.find();
       res.json({ events });

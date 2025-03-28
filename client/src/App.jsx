@@ -19,30 +19,74 @@ import TicketPage from './pages/TicketPage'
 import AdminDashboard from './pages/AdminDashboard'
 import OrganizerDashboard from './pages/OrganizerDashboard'
 import UserProfile from './pages/UserProfile'
+import ProtectedRoute from './ProtectedRoute';
 
 axios.defaults.baseURL = 'http://localhost:4000/'
 axios.defaults.withCredentials = true
 
 function App() {
-  const fetchUser = useUserStore((state) => state.fetchUser)
+  // const fetchUser = useUserStore((state) => state.fetchUser)
 
-  console.log(fetchUser);
-  useEffect(() => {
-    fetchUser() // User data ko fetch karne ke liye
-  }, [fetchUser])
+  // console.log(fetchUser);
+  // useEffect(() => {
+  //   fetchUser() // User data ko fetch karne ke liye
+  // }, [fetchUser])
+  // const currentUser = useUserStore((state) => state.)
 
   return (
     <Routes>
       <Route path='/' element={<Layout />}>
         <Route index element={<IndexPage />} />
-        <Route path='/useraccount' element={<UserAccountPage />} />
-        <Route path='/createEvent' element={<AddEvent />} />
-        <Route path='/dashboard' element={<UserProfile />} />
-        <Route path='/admin/dashboard' element={<AdminDashboard />} />
-        <Route path='/organizer/dashboard' element={<OrganizerDashboard />} />
+        <Route
+          path='/useraccount'
+          element={
+            <ProtectedRoute allowedRoles={['user']}>
+              <UserAccountPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/createEvent'
+          element={
+            <ProtectedRoute allowedRoles={['organizer' || 'admin']}>
+              <AddEvent />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path='/dashboard' 
+        element={
+            <ProtectedRoute allowedRoles={['user']}>
+              <UserProfile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/admin/dashboard'
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/organizer/dashboard'
+          element={
+            <ProtectedRoute allowedRoles={['organizer']}>
+              <OrganizerDashboard />
+            </ProtectedRoute>
+          }
+        />
         <Route path='/event/:id' element={<EventPage />} />
         <Route path='/calendar' element={<CalendarView />} />
-        <Route path='/wallet' element={<TicketPage />} />
+        <Route
+          path='/wallet'
+          element={
+            <ProtectedRoute allowedRoles={['user']}>
+              <TicketPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path='/event/:id/ordersummary' element={<OrderSummary />} />
       </Route>
 

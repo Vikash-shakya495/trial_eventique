@@ -223,7 +223,7 @@ export default function PaymentSummary() {
   async function generateQRCode(name, eventName) {
     try {
       const qrCodeData = await Qrcode.toDataURL(
-        `Event Name: ${eventName} \n Name: ${name}`
+        `Event Name: ${name} \n Name: ${eventName}`
       );
       return qrCodeData;
     } catch (error) {

@@ -79,8 +79,8 @@ export default function Header() {
 
         {/* {user && userRole.} */}
         {user && userRole?.role === 'organizer' && (
-          <Link to={'/createEvent'}>
-            <button className="primary">Create Event</button>
+          <Link to={'/organizer/dashboard'}>
+            <button className="primary">Organizer Dashboard</button>
           </Link>
         )}
 

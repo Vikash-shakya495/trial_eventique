@@ -58,7 +58,7 @@ const OrganizerDashboard = () => {
                <p>Email: {organizer.email}</p>
                <p>Events Organized: {organizer.eventsOrganised}</p>
                <p>Total Refunds: {organizer.totalRefunds}</p>
-               <p>Total Income: ${organizer.income}</p>
+               <p>Total Income: ${organizer.totalPriceOverall}</p>
             </div>
          ) : (
             <p>No organizer found.. </p>

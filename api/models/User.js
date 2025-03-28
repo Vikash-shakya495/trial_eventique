@@ -6,6 +6,8 @@ const UserSchema = new mongoose.Schema({
    password: String,
    resetPasswordToken: String,
    resetPasswordExpires: Date,
+   resetPasswordOtp: { type: String, default: null },
+   resetPasswordOtpExpires: { type: Date, default: null },
    role: { type: String, enum: ['user', 'organizer', 'admin'], default: 'user' }, // Added role field
 });
 

@@ -45,10 +45,12 @@ export default function IndexPage() {
   };
 
   // Filter events based on the search query
-  const filteredEvents = events.filter((event) =>
-    event.title.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredEvents = events
+  .filter((event) => event.status === "approved")
+  .filter((event) => event.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  console.log(filteredEvents);
   return (
     <>
       <div className="mt-1 flex flex-col">
@@ -71,7 +73,7 @@ export default function IndexPage() {
 
         <div className="mx-10 my-5 grid gap-x-6 gap-y-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:mx-5 ">
           {/*-------------------------- Checking whether there is an event or not-------------------  */}
-          {filteredEvents.length > 0 &&
+          {filteredEvents.length > 0 && 
             filteredEvents.map((event) => {
               const eventDate = new Date(event.eventDate);
               const currentDate = new Date();
