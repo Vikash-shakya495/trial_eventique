@@ -40,7 +40,7 @@ app.use(
 mongoose.connect(process.env.MONGO_URL).then(() => {
    console.log("MongoDb Connected")
 }).catch((Err) => {
-   consol.log("MongoDb error occured : ", Err)
+   console.log("MongoDb error occured : ", Err)
 });
 
 const storage = multer.diskStorage({
@@ -658,6 +658,7 @@ app.delete("/tickets/:id", async (req, res) => {
       res.status(500).json({ error: "Failed to delete ticket" });
    }
 });
+
 
 
 io.on("connection", (socket) => {
