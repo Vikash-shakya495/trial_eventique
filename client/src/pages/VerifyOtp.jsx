@@ -17,19 +17,30 @@ export default function VerifyOtp({ email, setStage }) {
     };
 
     return (
-        <div>
-            <h1>Verify OTP</h1>
-            {message && <p>{message}</p>}
-            <form onSubmit={handleSubmit}>
+        <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
+        <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-96">
+            <h1 className="text-2xl font-bold mb-4 text-center">Verify OTP</h1>
+            {message && <p className="text-green-500 text-center mb-4">{message}</p>}
+            <form onSubmit={handleSubmit} className="flex flex-col">
                 <input
                     type="text"
                     placeholder="Enter OTP"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
                     required
+                    className="p-2 mb-4 rounded border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <button type="submit">Verify OTP</button>
+                <button
+                    type="submit"
+                    className="bg-blue-600 text-white py-2 rounded hover:bg-blue-500 transition duration-200"
+                >
+                    Verify OTP
+                </button>
             </form>
+            <p className="text-sm text-center mt-4">
+                Didn't receive the OTP? <span className="text-blue-400 cursor-pointer">Resend OTP</span>
+            </p>
         </div>
+    </div>
     );
 }

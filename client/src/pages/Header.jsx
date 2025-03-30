@@ -54,9 +54,9 @@ export default function Header() {
       <header className='flex py-2 px-6 sm:px-6 justify-between place-items-center'>
 
         <Link to={'/'} className="flex item-center ">
-          <img src="../src/assets/logo.png" alt="" className='w-26 h-9' />
+          <img src="../src/assets/logo1.png" alt="" className='w-26 h-24' />
         </Link>
-        <div className='flex bg-white rounded py-2.5 px-4 w-1/3 gap-4 items-center shadow-md shadow-gray-200'>
+        {/* <div className='flex  rounded py-2.5 px-4 w-1/3 gap-4 items-center '>
 
           <button>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
@@ -67,7 +67,7 @@ export default function Header() {
             <input type="text" placeholder="Search" value={searchQuery} onChange={handleSearchInputChange} className='text-sm text-black outline-none w-full ' />
           </div>
           {/* <div className='text-sm text-gray-300 font-semibold'>Search</div> */}
-        </div>
+        {/* </div> */} 
 
 
         {/* Conditional Rendering Based on User Role */}
@@ -187,9 +187,7 @@ export default function Header() {
                   <div>Wallet</div>
                 </Link>
 
-                <Link className="flex hover:bg-background hover:shadow py-2 pl-6 pr-8 rounded-lg" to={'/verification'}>
-                  <div>Center</div>
-                </Link>
+    
 
                 <Link className="flex hover:bg-background hover:shadow py-2 pl-6 pr-8 rounded-lg" to={'/calendar'}>
                   <div>Calendar</div>

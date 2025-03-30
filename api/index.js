@@ -147,36 +147,7 @@ app.get("/profile", (req, res) => {
    }
 });
 
-app.get('/organizers', async (req, res) => {
 
-})
-
-app.get("/organizers/:email", async (req, res) => {
-   const { email } = req.params;
-
-   try {
-      const organizer = await OrganiserModel.findOne({ email: email });
-      if (!organizer) {
-         return res.status(404).json({ message: "Organizer not found" });
-      }
-      res.json(organizer);
-   } catch (error) {
-      console.error("Error fetching organizer:", error);
-      res.status(500).json({ message: "Failed to fetch organizer" });
-   }
-});
-
-
-app.get("/organizer/events/:organizerEmail", async (req, res) => {
-   const { organizerEmail } = req.params;
-   try {
-      const events = await Event.find({ email: organizerEmail });
-      res.json(events);
-   } catch (error) {
-      console.error("Error fetching organizer events:", error);
-      res.status(500).json({ message: "Server error" });
-   }
-});
 
 app.post("/logout", (req, res) => {
    res.cookie("token", "").json(true);
@@ -480,6 +451,52 @@ app.get("/events/dashboard-stats", async (req, res) => {
    }
 });
 
+
+app.get('/organizers', async (req, res) => {
+   try {
+     // Fetch all organizers from the database
+     const organizers = await OrganiserModel.find(); // Adjust the query as needed
+ 
+     // Check if any organizers were found
+     if (!organizers || organizers.length === 0) {
+       return res.status(404).json({ message: "No organizers found." });
+     }
+ 
+     // Return the list of organizers
+     res.status(200).json(organizers);
+   } catch (error) {
+     console.error("Error fetching organizers:", error);
+     res.status(500).json({ message: "Failed to fetch organizers." });
+   }
+ });
+
+app.get("/organizers/:email", async (req, res) => {
+   const { email } = req.params;
+
+   try {
+      const organizer = await OrganiserModel.findOne({ email: email });
+      if (!organizer) {
+         return res.status(404).json({ message: "Organizer not found" });
+      }
+      res.json(organizer);
+   } catch (error) {
+      console.error("Error fetching organizer:", error);
+      res.status(500).json({ message: "Failed to fetch organizer" });
+   }
+});
+
+
+app.get("/organizer/events/:organizerEmail", async (req, res) => {
+   const { organizerEmail } = req.params;
+   try {
+      const events = await Event.find({ email: organizerEmail });
+      res.json(events);
+   } catch (error) {
+      console.error("Error fetching organizer events:", error);
+      res.status(500).json({ message: "Server error" });
+   }
+});
+
 app.get("/organizers/dashboard-stats", async (req, res) => {
    try {
       const totalOrganizers = await OrganiserModel.countDocuments();
@@ -660,57 +677,70 @@ app.delete("/tickets/:id", async (req, res) => {
 });
 
 
-
 io.on("connection", (socket) => {
    console.log("New client connected");
-
-   // Join the socket room based on the user's email
+ 
+   // ✅ User joins chat room
    socket.on("join", (email) => {
-      socket.join(email);
+     socket.join(email);
+     console.log(`${email} joined the chat room`);
    });
-
+ 
+   socket.on("send-message", async (message) => {
+     try {
+       // ✅ Save to database
+       const newMessage = new MessageModel(message);
+       await newMessage.save();
+ 
+       // ✅ Emit message to receiver in real-time
+       io.to(message.receiverEmail).emit("receiveMessage", message);
+       console.log("Message sent to:", message.receiverEmail);
+     } catch (error) {
+       console.error("Error sending message:", error);
+     }
+   });
+ 
    socket.on("disconnect", () => {
-      console.log("Client disconnected");
+     console.log("Client disconnected");
    });
-});
-
-app.post("/send-message", async (req, res) => {
+ });
+ 
+ 
+ app.post("/send-message", async (req, res) => {
    const { senderEmail, receiverEmail, content } = req.body;
-
+ 
    try {
-      // Save the message to the database
-      const message = new Message({ senderEmail, receiverEmail, content });
-      await message.save();
-
-      // Emit the message to the receiver
-      io.to(receiverEmail).emit("receiveMessage", message);
-
-      res.status(200).json({ message: "Message sent successfully" });
+     // Save the message to the database
+     const message = new Message({ senderEmail, receiverEmail, content });
+     await message.save();
+ 
+     // Emit the message to the receiver
+     io.to(receiverEmail).emit("receiveMessage", message);
+ 
+     res.status(200).json({ message: "Message sent successfully" });
    } catch (error) {
-      console.error("Error sending message:", error);
-      res.status(500).json({ error: "Failed to send message" });
+     console.error("Error sending message:", error);
+     res.status(500).json({ error: "Failed to send message" });
    }
-});
-
-
-app.get("/messages/:userEmail/:organizerEmail", async (req, res) => {
+ });
+ 
+ app.get("/messages/:userEmail/:organizerEmail", async (req, res) => {
    const { userEmail, organizerEmail } = req.params;
-
+ 
    try {
-      const messages = await MessageModel.find({
-         $or: [
-            { senderEmail: userEmail, receiverEmail: organizerEmail },
-            { senderEmail: organizerEmail, receiverEmail: userEmail },
-         ],
-      }).sort({ timestamp: 1 });
-
-      res.json(messages);
+     const messages = await MessageModel.find({
+       $or: [
+         { senderEmail: userEmail, receiverEmail: organizerEmail },
+         { senderEmail: organizerEmail, receiverEmail: userEmail },
+       ],
+     }).sort({ timestamp: 1 });
+ 
+     res.json(messages);
    } catch (error) {
-      console.error("Error fetching messages:", error);
-      res.status(500).json({ error: "Failed to fetch messages" });
+     console.error("Error fetching messages:", error);
+     res.status(500).json({ error: "Failed to fetch messages" });
    }
-});
-
+ });
 
 const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {

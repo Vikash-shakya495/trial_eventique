@@ -209,7 +209,7 @@ export default function PaymentSummary() {
                 contact: details.contactNo,
             },
             theme: {
-                color: '#F37254',
+                color: '#00008b',
             },
         };
 

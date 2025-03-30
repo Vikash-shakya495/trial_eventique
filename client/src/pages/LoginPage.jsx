@@ -54,7 +54,7 @@ export default function LoginPage() {
   }
   
   return (
-    <div className ="flex w-full h-full lg:ml-24 px-10 py-10 justify-between place-items-center mt-20">
+    <div className ="flex w-full h-full lg:ml-24 px-10 py-10 justify-between place-items-center mt-20 overflow-hidden">
       <div className= "bg-white w-full sm:w-full md:w-1/2 lg:w-1/3 px-7 py-7 rounded-xl justify-center align-middle">
     
         <form className="flex flex-col w-auto items-center" onSubmit={loginUser}>
@@ -141,7 +141,7 @@ export default function LoginPage() {
       <div className='flex flex-col -ml-96 gap-3'>
         <div className='text-3xl font-black'>Welcome to</div>
         <div>
-          <img src="../src/assets/logo.png" alt="" className="w-48"/>
+          <img src="../src/assets/logo1.png" alt="" className="w-48"/>
         </div>
       </div>
 

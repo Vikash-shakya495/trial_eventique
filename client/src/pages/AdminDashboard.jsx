@@ -40,11 +40,24 @@ const AdminDashboard = () => {
     }
   };
 
+  const getRandomColor = () => {
+    const colors = [
+      "#f0f4f8", // Light Gray
+      "#e0f7fa", // Light Cyan
+      "#e1bee7", // Light Purple
+      "#ffe0b2", // Light Orange
+      "#ffccbc", // Light Red
+      "#c8e6c9", // Light Green
+      "#bbdefb", // Light Blue
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
+
   if (!stats) return <p className="text-center mt-10">Loading...</p>;
 
   return (
-    <div className="p-6 bg-e0e1dd min-h-screen">
-      <h1 className="text-3xl font-bold text-415a77 mb-6 font-serif">Admin Dashboard</h1>
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <h1 className="text-3xl font-bold text-blue-800 mb-6 font-serif">Admin Dashboard</h1>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 my-6">
         {[
@@ -57,7 +70,8 @@ const AdminDashboard = () => {
         ].map((item, idx) => (
           <div
             key={idx}
-            className="p-4 bg-gradient-to-r from-blue-800 to-[#0d1b2a] text-[#e0e1dd] shadow-lg rounded-md text-center transition-transform transform hover:scale-105 hover:shadow-2xl"
+            className="p-4 text-gray-800 shadow-lg rounded-md text-center transition-transform transform hover:scale-105 hover:shadow-2xl"
+            style={{ backgroundColor: getRandomColor() }} // Random background color
           >
             <h2 className="text-lg font-semibold flex items-center justify-center">
               {item.icon}
@@ -67,11 +81,12 @@ const AdminDashboard = () => {
           </div>
         ))}
       </div>
-      <h2 className="text-xl font-semibold my-4 text-415a77">Manage Events</h2>
+
+      <h2 className="text-xl font-semibold my-4 text-blue-800">Manage Events</h2>
       <div className="bg-white p-6 shadow-lg rounded-md overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
-            <tr className="border-b bg-0d1b2a">
+            <tr className="border-b bg-blue-800 text-white">
               <th className="p-4 text-2xl">Title</th>
               <th className="p-4 text-2xl">Event Date</th>
               <th className="p-4 text-2xl">Location</th>
@@ -82,15 +97,15 @@ const AdminDashboard = () => {
           </thead>
           <tbody>
             {events.map((event) => (
-              <tr key={event._id} className="border-b text-center hover:bg-415a77 transition-colors duration-200">
-                <td className="p-4 bg-blue-100 border-b rounded-2xl border-blue-500">{event.title}</td> {/* Title Column */}
-                <td className="p-4 bg-green-100 border-b rounded-2xl border-green-500">{event.eventDate}</td> {/* Event Date Column */}
-                <td className="p-4 bg-yellow-100 border-b rounded-2xl border-yellow-500">{event.location}</td> {/* Location Column */}
-                <td className="p-4 bg-purple-100 border-b rounded-2xl border-purple-500">{event.organizedBy}</td> {/* Organised By Column */}
+              <tr key={event._id} className="border-b text-center hover:bg-blue-100 transition-colors duration-200">
+                <td className="p-4 bg-gray-50 border-b rounded-2xl border-gray-300">{event.title}</td>
+                <td className="p-4 bg-gray-50 border-b rounded-2xl border-gray-300">{event.eventDate}</td>
+                <td className="p-4 bg-gray-50 border-b rounded-2xl border-gray-300">{event.location}</td>
+                <td className="p-4 bg-gray-50 border-b rounded-2xl border-gray-300">{event.organizedBy}</td>
                 <td className={`p-4 ${event.status === "approved" ? "bg-green-200 text-green-500" : event.status === "cancelled" ? "bg-red-200 text-red-500" : "bg-yellow-200 text-yellow-500"}`}>
                   {event.status}
-                </td> {/* Status Column */}
-                <td className="p-4 bg-gray-100"> {/* Actions Column */}
+                </td>
+                <td className="p-4 bg-gray-50">
                   {event.status === "pending" && (
                     <>
                       <button

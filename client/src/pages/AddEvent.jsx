@@ -18,6 +18,9 @@ export default function AddEvent() {
     image: null,
     likes: 0
   });
+  
+  const [loading, setLoading] = useState(false); // State for loading
+  const [successMessage, setSuccessMessage] = useState(""); // State for success message
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -38,59 +41,72 @@ export default function AddEvent() {
       formDataToSend.append(key, formData[key]);
     });
 
+    setLoading(true); // Set loading to true
+    setSuccessMessage(""); // Reset success message
+
     try {
-      const response = await axios.post("/createEvent", formDataToSend,{
+      const response = await axios.post("/createEvent", formDataToSend, {
         headers: {
           "Content-Type": "multipart/form-data",
-          },
+        },
       });
       console.log("Event posted successfully:", response.data);
+      setSuccessMessage("Event created successfully!"); // Set success message
     } catch (error) {
       console.error("Error posting event:", error.response?.data || error.message);
+      setSuccessMessage("Error creating event. Please try again."); // Set error message
+    } finally {
+      setLoading(false); // Set loading to false
     }
   };
 
   return (
-    <div className='flex flex-col ml-20 mt-10'>
-      <h1 className='font-bold text-[36px] mb-5'>Post an Event</h1>
-      <form onSubmit={handleSubmit} className='flex flex-col gap-5'>
-        <label>
-          Title:
-          <input type="text" name="title" value={formData.title} onChange={handleChange} required />
-        </label>
-        <label>
-          Optional:
-          <input type="text" name="optional" value={formData.optional} onChange={handleChange} />
-        </label>
-        <label>
-          Description:
-          <textarea name="description" value={formData.description} onChange={handleChange} required />
-        </label>
-        <label>
-          Organized By:
-          <input type="text" name="organizedBy" value={formData.organizedBy} onChange={handleChange} required />
-        </label>
-        <label>
-          Event Date:
-          <input type="date" name="eventDate" value={formData.eventDate} onChange={handleChange} required />
-        </label>
-        <label>
-          Event Time:
-          <input type="time" name="eventTime" value={formData.eventTime} onChange={handleChange} required />
-        </label>
-        <label>
-          Location:
-          <input type="text" name="location" value={formData.location} onChange={handleChange} required />
-        </label>
-        <label>
-          Ticket Price:
-          <input type="number" name="ticketPrice" value={formData.ticketPrice} onChange={handleChange} required />
-        </label>
-        <label>
-          Image:
-          <input type="file" name="image" onChange={handleImageUpload} accept="image/*" required />
-        </label>
-        <button type="submit">Submit</button>
+    <div className="mx-auto bg-white p-6 rounded-xl mt-10 border-2 w-full">
+      <h1 className="text-3xl font-bold text-blue-500 mb-5 text-center">Post an Event</h1>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-full">
+        <div className='flex gap-4'>
+          <div className='w-1/2'>
+            <label className="font-semibold text-gray-700">
+              Title:
+              <input type="text" name="title" value={formData.title} onChange={handleChange} required className="block w-full p-2 border rounded-lg bg-gray-100" />
+            </label>
+            <label className="font-semibold text-gray-700">
+              Description:
+              <textarea name="description" value={formData.description} onChange={handleChange} required className="block w-full p-2 border rounded-lg bg-gray-100" />
+            </label>
+            <label className="font-semibold text-gray-700">
+              Organized By:
+              <input type="text" name="organizedBy" value={formData.organizedBy} onChange={handleChange} required className="block w-full p-2 border rounded-lg bg-gray-100" />
+            </label>
+            <label className="font-semibold text-gray-700">
+              Event Date:
+              <input type="date" name="eventDate" value={formData.eventDate} onChange={handleChange} required className="block w-full p-2 border rounded-lg bg-gray-100" />
+            </label>
+          </div>
+          <div className='w-1/2'>
+            <label className="font-semibold text-gray-700">
+              Event Time:
+              <input type="time" name="eventTime" value={formData.eventTime} onChange={handleChange} required className="block w-full p-2 border rounded-lg bg-gray-100" />
+            </label>
+            <label className="font-semibold text-gray-700">
+              Location:
+              <input type="text" name="location" value={formData.location} onChange={handleChange} required className="block w-full p-2 border rounded-lg bg-gray-100" />
+            </label>
+            <label className="font-semibold text-gray-700">
+              Ticket Price:
+              <input type="number" name="ticketPrice" value={formData.ticketPrice} onChange={handleChange} required className="block w-full p-2 border rounded-lg bg-gray-100" />
+            </label>
+            <label className="font-semibold text-gray-700">
+              Image:
+              <input type="file" name="image" onChange={handleImageUpload} accept="image/*" required className="block w-full p-2 border rounded-lg bg-gray-100" />
+            </label>
+          </div>
+        </div>
+        <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded-md transition text-lg">
+          {loading ? "Posting..." : "Submit"}
+        </button>
+        {loading && <p className="text-blue-500 text-center">Please wait while we post your event...</p>}
+        {successMessage && <p className="text-green-500 text-center font-semibold">{successMessage}</p>}
       </form>
     </div>
   );

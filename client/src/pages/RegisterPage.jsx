@@ -44,7 +44,7 @@ export default function RegisterPage() {
         <div className="flex flex-col gap-3">
           <div className="text-3xl font-black">Welcome to</div>
           <div>
-            <img src="../src/assets/logo.png" alt="" className="w-48" />
+            <img src="../src/assets/logo1.png" alt="" className="w-48" />
           </div>
         </div>
         <div className="ml-48 w-80 mt-6">

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Chat from './Chat';
+import Chat from '../components/Chat';
 import useUserStore from "../store"; // Assuming you have a user store to get the logged-in user's info
 
 function UserProfile() {
