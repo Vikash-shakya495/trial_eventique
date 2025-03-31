@@ -564,13 +564,12 @@ const transporter = nodemailer.createTransport({
    },
 });
 
-
-const sendConfirmationEmail = (to, ticketDetails, organizer) => {
+const sendConfirmationEmail = (to, ticketDetails) => {
    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to,
-      subject: '🎟️ Ticket Confirmation - Your Booking is Confirmed!',
-      html: `
+       from: process.env.EMAIL_USER,
+       to,
+       subject: '🎟️ Ticket Confirmation - Your Booking is Confirmed!',
+       html: `
             <div style="font-family: Arial, sans-serif; line-height: 1.6;">
                 <h2 style="color: #4CAF50;">Your Ticket has been Confirmed!</h2>
                 <p>Thank you for your purchase! Here are your ticket details:</p>
@@ -584,9 +583,6 @@ const sendConfirmationEmail = (to, ticketDetails, organizer) => {
                 </ul>
                 <h3>Your QR Code:</h3>
                 <img src="${ticketDetails.qr}" alt="QR Code" style="width: 200px; height: auto; border: 1px solid #ddd; border-radius: 4px;">
-                <h3>Organizer Details:</h3>
-                <p><strong>Name:</strong> ${organizer.name}</p>
-                <p><strong>Email:</strong> ${organizer.email}</p>
                 <p style="margin-top: 20px;">We look forward to seeing you at the event!</p>
                 <p style="color: #888;">If you have any questions, feel free to contact us.</p>
             </div>
@@ -594,81 +590,46 @@ const sendConfirmationEmail = (to, ticketDetails, organizer) => {
    };
 
    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-         console.error("Error sending email:", error);
-      } else {
-         console.log('Email sent: ' + info.response);
-      }
+       if (error) {
+           console.error("Error sending email:", error);
+       } else {
+           console.log('Email sent: ' + info.response);
+       }
    });
 };
 
 app.post("/tickets", async (req, res) => {
-   const { ticketDetails }= req.body;
-
-   if (!ticketDetails || !ticketDetails.totaltickets) {
-      return res.status(400).json({ error: "Total tickets quantity is required." });
-   }
    try {
-      console.log("Incoming ticket details:", ticketDetails);
+       const ticketDetails = req.body;
 
-      if (!ticketDetails.ticketDetails.totaltickets) {
-         return res.status(400).json({ error: "Total tickets quantity is required." });
-      }
+       // Log incoming ticket details for debugging
+       console.log("Incoming ticket details:", ticketDetails);
 
-      const newTicket = new Ticket(ticketDetails);
-      await newTicket.save();
+       // Ensure that the ticketDetails includes the quantity
+       if (!ticketDetails.ticketDetails.totaltickets) {
+           return res.status(400).json({ error: "Total tickets quantity is required." });
+       }
 
-      // Fetch the event using the event ID from ticketDetails
-      const event = await Event.findById(ticketDetails.eventid);
-      if (!event) {
-         return res.status(404).json({ error: "Event not found" }); // Handle case where event is not found
-      }
-      // Update event details
-      event.ticketSold += ticketDetails.totaltickets; // Increment ticket sold
-      event.Income += ticketDetails.totaltickets * event.ticketPrice; // Update income
-      await event.save();
+       const newTicket = new Ticket(ticketDetails);
+       await newTicket.save();
 
+       // Update the corresponding event
+       const event = await Event.findById(ticketDetails.eventid);
+       if (event) {
+           event.ticketSold += ticketDetails.ticketDetails.totaltickets; // Increment ticket sold
+           event.Income += ticketDetails.ticketDetails.totaltickets * event.ticketPrice; // Update income
+           await event.save();
+       }
 
-      // Find the organizer for the event
-      const organizer = await OrganiserModel.findById(event.organizedBy);
-      if (!organizer) {
-         return res.status(404).json({ error: "Organizer not found" }); // Handle case where organizer is not found
-      }
+        // Send confirmation email
+        sendConfirmationEmail(ticketDetails.ticketDetails.email, ticketDetails.ticketDetails);
 
-      const { name: userName, email: userEmail } = ticketDetails
-      const organizerMailOptions = {
-         from: process.env.EMAIL_USER,
-         to: organizer.email,
-         subject: 'New Ticket Booking Notification',
-         html: `
-                   <div>
-                       <h2>New Ticket Booking</h2>
-                       <p>A new ticket has been booked for your event.</p>
-                       <p><strong>User Name:</strong> ${userName}</p>
-                       <p><strong>User Email:</strong> ${userEmail}</p>
-                       <p><strong>Event Name:</strong> ${ticketDetails.eventname}</p>
-                   </div>
-               `,
-      };
-
-      // Send email to the organizer
-      try {
-         await transporter.sendMail(organizerMailOptions);
-     } catch (emailError) {
-         console.error("Error sending email to organizer:", emailError);
-         // Optionally, you can choose to log this error but still return a success response
-     }
-      // Send confirmation email to the user
-      sendConfirmationEmail(ticketDetails.ticketDetails.email, ticketDetails.ticketDetails);
-
-      return res.status(201).json({ ticket: newTicket });
+       return res.status(201).json({ ticket: newTicket });
    } catch (error) {
-      console.error("Error creating ticket:", error); // Log the error
-      return res.status(500).json({ error: "Failed to create ticket" });
+       console.error("Error creating ticket:", error); // Log the error
+       return res.status(500).json({ error: "Failed to create ticket" });
    }
 });
-
-
 
 const razorpay = new Razorpay({
    key_id: process.env.RAZORPAY_KEY_ID,
