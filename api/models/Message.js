@@ -1,13 +1,13 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const messageSchema = new mongoose.Schema({
-   // _id: mongoose.Schema.Types.ObjectId,
-   senderEmail: String,
-   senderName: String,
-   receiverEmail: String,
-   content: { type: String, required: true },
-   timestamp: { type: Date, default: Date.now },
+    senderEmail: { type: String, required: true },
+    senderName: { type: String, required: true },
+    receiverEmail: { type: String, required: true },
+    receiverName: { type: String, required: true },
+    content: { type: String, required: true },
+    timestamp: { type: Date, default: Date.now }
 });
 
-const Message = mongoose.model("Message", messageSchema);
+const Message = mongoose.model('Message', messageSchema);
 module.exports = Message;

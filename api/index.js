@@ -742,104 +742,79 @@ app.delete("/tickets/:id", async (req, res) => {
 io.on("connection", (socket) => {
    console.log("New client connected:", socket.id);
 
-   // User joins chat room
    socket.on("join", (email) => {
-      if (!email) return console.error("Invalid email");
-      socket.join(email);
-      console.log(`${email} joined the chat room`);
+       if (!email) return console.error("Invalid email");
+       socket.join(email);
+       console.log(`${email} joined the chat room`);
    });
 
-   // User leaves chat room
-   socket.on("leave", (email) => {
-      if (!email) return console.error("Invalid email");
-      socket.leave(email);
-      console.log(`${email} left the chat room`);
-   });
-
-   // Sending message
    socket.on("send-message", async (message) => {
-      try {
-         if (!message || !message.receiverEmail) {
-            return console.error("Invalid message data");
-         }
+       try {
+           if (!message || !message.receiverEmail) {
+               return console.error("Invalid message data");
+           }
 
-         // Save message to database
-         const newMessage = new MessageModel(message);
-         await newMessage.save();
-
-         // Emit message to receiver
-         io.to(message.receiverEmail).emit("receiveMessage", message);
-         console.log(`Message sent to: ${message.receiverEmail}`);
-      } catch (error) {
-         console.error("Error sending message:", error);
-      }
+           const newMessage = new MessageModel(message);
+           await newMessage.save();
+           io.to(message.receiverEmail).emit("receiveMessage", message);
+           console.log(`Message sent to: ${message.receiverEmail}`);
+       } catch (error) {
+           console.error("Error sending message:", error);
+       }
    });
 
    socket.on("disconnect", () => {
-      console.log("Client disconnected:", socket.id);
+       console.log("Client disconnected:", socket.id);
    });
 });
 
+app.post('/send-message', async (req, res) => {
+   const { senderEmail, senderName, receiverEmail, receiverName, content } = req.body;
 
+   if (!senderEmail || !senderName || !receiverEmail || !content || !receiverName) {
+       return res.status(400).json({ error: "All fields are required" });
+   }
 
-app.post("/send-message", async (req, res) => {
+   const newMessage = new Message({
+       senderEmail,
+       senderName,
+       receiverEmail,
+       receiverName,
+       content,
+       timestamp: new Date()
+   });
+
    try {
-      const { senderEmail, receiverEmail, content } = req.body;
-
-      // 🛑 Input Validation
-      if (!senderEmail || !receiverEmail || !content) {
-         return res.status(400).json({ error: "All fields are required" });
-      }
-
-      // ✅ Save message to database
-      const newMessage = new Message({
-         senderEmail,
-         receiverEmail,
-         content,
-         timestamp: new Date() // Optional, since you have a default in the schema
-     });
-      console.log("New Message Document:", newMessage);
-      const savedMessage = await newMessage.save();
-
-      // ✅ Check if receiver is online
-      const receiverSockets = await io.in(receiverEmail).fetchSockets();
-      if (receiverSockets.length > 0) {
-         io.to(receiverEmail).emit("receiveMessage", savedMessage);
-      } else {
-         console.log(`User ${receiverEmail} is offline, message saved.`);
-      }
-
-      res.status(200).json({ message: "Message sent successfully", data: savedMessage });
+       const savedMessage = await newMessage.save();
+       io.to(receiverEmail).emit("receiveMessage", savedMessage);
+       res.status(200).json({ message: "Message sent successfully", data: savedMessage });
    } catch (error) {
-      console.error("Error sending message:", error);
-      res.status(500).json({ error: "Failed to send message" });
+       console.error("Error saving message:", error);
+       res.status(500).json({ error: "Failed to send message" });
    }
 });
 
-
 app.get("/messages/:userEmail/:organizerEmail", async (req, res) => {
    try {
-      const { userEmail, organizerEmail } = req.params;
+       const { userEmail, organizerEmail } = req.params;
 
-      // 🛑 Validate Input
-      if (!userEmail || !organizerEmail) {
-         return res.status(400).json({ success: false, error: "Invalid request parameters" });
-      }
+       if (!userEmail || !organizerEmail) {
+           return res.status(400).json({ success: false, error: "Invalid request parameters" });
+       }
 
-      // ✅ Fetch messages sorted by timestamp
-      const messages = await Message.find({
-         $or: [
-            { senderEmail: userEmail, receiverEmail: organizerEmail },
-            { senderEmail: organizerEmail, receiverEmail: userEmail },
-         ],
-      })
-         .sort({ timestamp: 1 }) // Ascending order
-         .select("-__v"); // Remove version key
+       const messages = await Message.find({
+           $or: [
+               { senderEmail: userEmail, receiverEmail: organizerEmail },
+               { senderEmail: organizerEmail, receiverEmail: userEmail },
+           ],
+       })
+       .sort({ timestamp: 1 })
+       .select("-__v");
 
-      res.status(200).json({ success: true, data: messages });
+       res.status(200).json({ success: true, data: messages });
    } catch (error) {
-      console.error("Error fetching messages:", error);
-      res.status(500).json({ success: false, error: "Failed to fetch messages" });
+       console.error("Error fetching messages:", error);
+       res.status(500).json({ success: false, error: "Failed to fetch messages" });
    }
 });
 
