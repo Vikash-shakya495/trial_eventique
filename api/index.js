@@ -40,8 +40,12 @@ const io = socketIo(server, {
 
 
 
-mongoose.connect(process.env.MONGO_URL).then(() => {
-   console.log("MongoDb Connected")
+mongoose.connect(process.env.MONGO_URL, {
+   useNewUrlParser: true,
+   useUnifiedTopology: true,
+   authSource: "admin"  // Yeh line add karein
+}).then(() => {
+   console.log("Connected to MongoDB");
 }).catch((Err) => {
    console.log("MongoDb error occured : ", Err)
 });
@@ -566,10 +570,10 @@ const transporter = nodemailer.createTransport({
 
 const sendConfirmationEmail = (to, ticketDetails) => {
    const mailOptions = {
-       from: process.env.EMAIL_USER,
-       to,
-       subject: '🎟️ Ticket Confirmation - Your Booking is Confirmed!',
-       html: `
+      from: process.env.EMAIL_USER,
+      to,
+      subject: '🎟️ Ticket Confirmation - Your Booking is Confirmed!',
+      html: `
             <div style="font-family: Arial, sans-serif; line-height: 1.6;">
                 <h2 style="color: #4CAF50;">Your Ticket has been Confirmed!</h2>
                 <p>Thank you for your purchase! Here are your ticket details:</p>
@@ -590,44 +594,44 @@ const sendConfirmationEmail = (to, ticketDetails) => {
    };
 
    transporter.sendMail(mailOptions, (error, info) => {
-       if (error) {
-           console.error("Error sending email:", error);
-       } else {
-           console.log('Email sent: ' + info.response);
-       }
+      if (error) {
+         console.error("Error sending email:", error);
+      } else {
+         console.log('Email sent: ' + info.response);
+      }
    });
 };
 
 app.post("/tickets", async (req, res) => {
    try {
-       const ticketDetails = req.body;
+      const ticketDetails = req.body;
 
-       // Log incoming ticket details for debugging
-       console.log("Incoming ticket details:", ticketDetails);
+      // Log incoming ticket details for debugging
+      console.log("Incoming ticket details:", ticketDetails);
 
-       // Ensure that the ticketDetails includes the quantity
-       if (!ticketDetails.ticketDetails.totaltickets) {
-           return res.status(400).json({ error: "Total tickets quantity is required." });
-       }
+      // Ensure that the ticketDetails includes the quantity
+      if (!ticketDetails.ticketDetails.totaltickets) {
+         return res.status(400).json({ error: "Total tickets quantity is required." });
+      }
 
-       const newTicket = new Ticket(ticketDetails);
-       await newTicket.save();
+      const newTicket = new Ticket(ticketDetails);
+      await newTicket.save();
 
-       // Update the corresponding event
-       const event = await Event.findById(ticketDetails.eventid);
-       if (event) {
-           event.ticketSold += ticketDetails.ticketDetails.totaltickets; // Increment ticket sold
-           event.Income += ticketDetails.ticketDetails.totaltickets * event.ticketPrice; // Update income
-           await event.save();
-       }
+      // Update the corresponding event
+      const event = await Event.findById(ticketDetails.eventid);
+      if (event) {
+         event.ticketSold += ticketDetails.ticketDetails.totaltickets; // Increment ticket sold
+         event.Income += ticketDetails.ticketDetails.totaltickets * event.ticketPrice; // Update income
+         await event.save();
+      }
 
-        // Send confirmation email
-        sendConfirmationEmail(ticketDetails.ticketDetails.email, ticketDetails.ticketDetails);
+      // Send confirmation email
+      sendConfirmationEmail(ticketDetails.ticketDetails.email, ticketDetails.ticketDetails);
 
-       return res.status(201).json({ ticket: newTicket });
+      return res.status(201).json({ ticket: newTicket });
    } catch (error) {
-       console.error("Error creating ticket:", error); // Log the error
-       return res.status(500).json({ error: "Failed to create ticket" });
+      console.error("Error creating ticket:", error); // Log the error
+      return res.status(500).json({ error: "Failed to create ticket" });
    }
 });
 
@@ -704,28 +708,28 @@ io.on("connection", (socket) => {
    console.log("New client connected:", socket.id);
 
    socket.on("join", (email) => {
-       if (!email) return console.error("Invalid email");
-       socket.join(email);
-       console.log(`${email} joined the chat room`);
+      if (!email) return console.error("Invalid email");
+      socket.join(email);
+      console.log(`${email} joined the chat room`);
    });
 
    socket.on("send-message", async (message) => {
-       try {
-           if (!message || !message.receiverEmail) {
-               return console.error("Invalid message data");
-           }
+      try {
+         if (!message || !message.receiverEmail) {
+            return console.error("Invalid message data");
+         }
 
-           const newMessage = new MessageModel(message);
-           await newMessage.save();
-           io.to(message.receiverEmail).emit("receiveMessage", message);
-           console.log(`Message sent to: ${message.receiverEmail}`);
-       } catch (error) {
-           console.error("Error sending message:", error);
-       }
+         const newMessage = new MessageModel(message);
+         await newMessage.save();
+         io.to(message.receiverEmail).emit("receiveMessage", message);
+         console.log(`Message sent to: ${message.receiverEmail}`);
+      } catch (error) {
+         console.error("Error sending message:", error);
+      }
    });
 
    socket.on("disconnect", () => {
-       console.log("Client disconnected:", socket.id);
+      console.log("Client disconnected:", socket.id);
    });
 });
 
@@ -733,49 +737,49 @@ app.post('/send-message', async (req, res) => {
    const { senderEmail, senderName, receiverEmail, receiverName, content } = req.body;
 
    if (!senderEmail || !senderName || !receiverEmail || !content || !receiverName) {
-       return res.status(400).json({ error: "All fields are required" });
+      return res.status(400).json({ error: "All fields are required" });
    }
 
    const newMessage = new Message({
-       senderEmail,
-       senderName,
-       receiverEmail,
-       receiverName,
-       content,
-       timestamp: new Date()
+      senderEmail,
+      senderName,
+      receiverEmail,
+      receiverName,
+      content,
+      timestamp: new Date()
    });
 
    try {
-       const savedMessage = await newMessage.save();
-       io.to(receiverEmail).emit("receiveMessage", savedMessage);
-       res.status(200).json({ message: "Message sent successfully", data: savedMessage });
+      const savedMessage = await newMessage.save();
+      io.to(receiverEmail).emit("receiveMessage", savedMessage);
+      res.status(200).json({ message: "Message sent successfully", data: savedMessage });
    } catch (error) {
-       console.error("Error saving message:", error);
-       res.status(500).json({ error: "Failed to send message" });
+      console.error("Error saving message:", error);
+      res.status(500).json({ error: "Failed to send message" });
    }
 });
 
 app.get("/messages/:userEmail/:organizerEmail", async (req, res) => {
    try {
-       const { userEmail, organizerEmail } = req.params;
+      const { userEmail, organizerEmail } = req.params;
 
-       if (!userEmail || !organizerEmail) {
-           return res.status(400).json({ success: false, error: "Invalid request parameters" });
-       }
+      if (!userEmail || !organizerEmail) {
+         return res.status(400).json({ success: false, error: "Invalid request parameters" });
+      }
 
-       const messages = await Message.find({
-           $or: [
-               { senderEmail: userEmail, receiverEmail: organizerEmail },
-               { senderEmail: organizerEmail, receiverEmail: userEmail },
-           ],
-       })
-       .sort({ timestamp: 1 })
-       .select("-__v");
+      const messages = await Message.find({
+         $or: [
+            { senderEmail: userEmail, receiverEmail: organizerEmail },
+            { senderEmail: organizerEmail, receiverEmail: userEmail },
+         ],
+      })
+         .sort({ timestamp: 1 })
+         .select("-__v");
 
-       res.status(200).json({ success: true, data: messages });
+      res.status(200).json({ success: true, data: messages });
    } catch (error) {
-       console.error("Error fetching messages:", error);
-       res.status(500).json({ success: false, error: "Failed to fetch messages" });
+      console.error("Error fetching messages:", error);
+      res.status(500).json({ success: false, error: "Failed to fetch messages" });
    }
 });
 
