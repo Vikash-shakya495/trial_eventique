@@ -131,8 +131,8 @@ export default function IndexPage() {
 
                     <div className="text-xs flex flex-col flex-wrap truncate-text">{event.description}</div>
                     <div className="flex justify-between items-center my-2 mr-4">
-                      <div className="text-sm text-primarydark ">Organized By: <br /><span className="font-bold">{event.organizedBy}</span></div>
-                      <div className="text-sm text-primarydark ">Created By: <br /> <span className="font-semibold">{event.owner.toUpperCase()}</span></div>
+                      <div className="text-sm text-primarydark ">Organized By: <br /><span className="font-bold">{event.owner.toUpperCase()}</span></div>
+                      {/* <div className="text-sm text-primarydark ">Created By: <br /> <span className="font-semibold">{event}</span></div> */}
                     </div>
                     <Link to={'/event/' + event._id} className="flex justify-center">
                       <button className="primary flex items-center gap-2">Book Ticket <BsArrowRightShort className="w-6 h-6" /></button>

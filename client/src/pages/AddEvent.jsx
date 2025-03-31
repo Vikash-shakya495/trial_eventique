@@ -10,7 +10,7 @@ export default function AddEvent() {
     email: user ? user.email : "",
     optional: "",
     description: "",
-    organizedBy: "",
+    organizedBy: user ? user._id : "",
     eventDate: "",
     eventTime: "",
     location: "",
@@ -76,7 +76,7 @@ export default function AddEvent() {
             </label>
             <label className="font-semibold text-gray-700">
               Organized By:
-              <input type="text" name="organizedBy" value={formData.organizedBy} onChange={handleChange} required className="block w-full p-2 border rounded-lg bg-gray-100" />
+              <input type="text" name="organizedBy" value={formData.owner} onChange={handleChange} required className="block w-full p-2 border rounded-lg bg-gray-100" />
             </label>
             <label className="font-semibold text-gray-700">
               Event Date:
@@ -105,7 +105,11 @@ export default function AddEvent() {
         <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded-md transition text-lg">
           {loading ? "Posting..." : "Submit"}
         </button>
-        {loading && <p className="text-blue-500 text-center">Please wait while we post your event...</p>}
+        {loading && (
+          <div className="flex justify-center mt-4">
+            <img src='https://cdn.pixabay.com/animation/2022/07/29/03/42/03-42-07-846_512.gif' alt="Loading..." className="w-16 h-16" />
+          </div>
+        )}
         {successMessage && <p className="text-green-500 text-center font-semibold">{successMessage}</p>}
       </form>
     </div>

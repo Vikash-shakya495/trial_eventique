@@ -9,8 +9,8 @@ const OrganizerDashboard = () => {
    const [events, setEvents] = useState([]);
    const [totalIncome, setTotalIncome] = useState(0);
    const user = useUserStore((state) => state.user); // Get the user object from the store
-   const organizerEmail = user ? user.email : null; // Safely access the email
-
+   const organizerEmail = user?.email; // Safely access the email
+   console.log("passing gmail of organizer :" ,organizerEmail)
 
    useEffect(() => {
       if (!organizerEmail) {
@@ -47,9 +47,6 @@ const OrganizerDashboard = () => {
 
       fetchOrganizer();
       fetchEvents();
-
-
-
 
    }, [organizerEmail]);
 
@@ -116,7 +113,7 @@ const OrganizerDashboard = () => {
 
             <div className="mt-6 flex justify-center gap-4">
                <AddEvent />
-               <Chat userEmail={user?.email} organizerEmail={organizerEmail} />
+               <Chat userEmail={user.email} organizerEmail={organizerEmail} />
 
             </div>
          </div>

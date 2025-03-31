@@ -1,5 +1,4 @@
 import axios from "axios";
-
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom"
 import { AiFillCalendar } from "react-icons/ai";
@@ -17,6 +16,7 @@ export default function EventPage() {
     }
     axios.get(`/event/${id}`).then(response => {
       setEvent(response.data)
+      console.log(response.data)
     }).catch((error) => {
       console.error("Error fetching events:", error);
     });
@@ -67,7 +67,7 @@ if (!event) return '';
         {event.description}
       </div>
       <div className="mx-2 mt-5 text-md md:text-xl font-bold text-primarydark">
-        Organized By {event.organizedBy}
+        Organized By {event.owner}
         
       </div>
       <div className="mx-2 mt-5">

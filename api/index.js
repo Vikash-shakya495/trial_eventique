@@ -4,7 +4,7 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const UserModel = require("./models/User");
 const OrganiserModel = require('./models/Organiser')
-const MessageModel = require('./models/Message');
+const Message = require('./models/Message');
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
@@ -15,6 +15,7 @@ const crypto = require("crypto");
 const cloudinary = require("./config/cloudinary");
 // const { getDashboardStats } = require("../controllers/eventController");
 const Ticket = require("./models/Ticket");
+const Event = require('./models/Event');
 const http = require("http");
 const socketIo = require("socket.io");
 const Razorpay = require('razorpay');
@@ -23,25 +24,35 @@ const fs = require("fs");
 const app = express();
 
 const server = http.createServer(app);
-const io = socketIo(server);
+// const io = socketIo(server);
 
 const bcryptSalt = bcrypt.genSaltSync(10);
 const jwtSecret = "bsbsfbrnsftentwnnwnwn";
 
-app.use(express.json());
 app.use(cookieParser());
-app.use(
-   cors({
-      credentials: true,
-      origin: "http://localhost:5173",
-   })
-);
+const io = socketIo(server, {
+   cors: {
+      origin: "http://localhost:5173", // Allow your frontend origin
+      methods: ["GET", "POST"],
+      credentials: true // Allow credentials if needed
+   }
+});
+
+
 
 mongoose.connect(process.env.MONGO_URL).then(() => {
    console.log("MongoDb Connected")
 }).catch((Err) => {
    console.log("MongoDb error occured : ", Err)
 });
+
+
+// Use CORS middleware for Express
+app.use(cors({
+   origin: "http://localhost:5173", // Allow your frontend origin
+   credentials: true // Allow credentials if needed
+}));
+app.use(express.json());
 
 const storage = multer.diskStorage({
    destination: (req, file, cb) => {
@@ -60,6 +71,10 @@ app.get("/test", (req, res) => {
 
 app.post("/register", async (req, res) => {
    const { name, email, password, role } = req.body;
+   // Input validation
+   if (!name || !email || !password || !role) {
+      return res.status(400).json({ error: "All fields are required." });
+   }
 
    try {
       // Check if the email already exists
@@ -96,6 +111,10 @@ app.post("/register", async (req, res) => {
 
 app.post("/login", async (req, res) => {
    const { email, password } = req.body;
+   // Input validation
+   if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required." });
+   }
 
    const userDoc = await UserModel.findOne({ email });
 
@@ -199,21 +218,21 @@ app.post("/auth/verify-otp", async (req, res) => {
    const { email, otp } = req.body;
 
    try {
-       const user = await UserModel.findOne({ email });
-       if (!user) {
-           return res.status(404).json({ error: "User  not found" });
-       }
+      const user = await UserModel.findOne({ email });
+      if (!user) {
+         return res.status(404).json({ error: "User  not found" });
+      }
 
-       // Check if the OTP is valid and not expired
-       if (user.resetPasswordOtp !== otp || Date.now() > user.resetPasswordOtpExpires) {
-           return res.status(400).json({ error: "Invalid or expired OTP" });
-       }
+      // Check if the OTP is valid and not expired
+      if (user.resetPasswordOtp !== otp || Date.now() > user.resetPasswordOtpExpires) {
+         return res.status(400).json({ error: "Invalid or expired OTP" });
+      }
 
-       // OTP is valid, allow the user to reset their password
-       res.status(200).json({ message: "OTP verified. You can now reset your password." });
+      // OTP is valid, allow the user to reset their password
+      res.status(200).json({ message: "OTP verified. You can now reset your password." });
    } catch (error) {
-       console.error("Error verifying OTP:", error);
-       res.status(500).json({ error: "Failed to verify OTP" });
+      console.error("Error verifying OTP:", error);
+      res.status(500).json({ error: "Failed to verify OTP" });
    }
 });
 
@@ -222,57 +241,42 @@ app.post("/auth/reset-password", async (req, res) => {
    const { email, otp, password } = req.body;
 
    try {
-       const user = await UserModel.findOne({ email });
-       if (!user) {
-           return res.status(404).json({ error: "User  not found" });
-       }
+      const user = await UserModel.findOne({ email });
+      if (!user) {
+         return res.status(404).json({ error: "User  not found" });
+      }
 
-       // Check if the OTP is valid and not expired
-       if (user.resetPasswordOtp !== otp || Date.now() > user.resetPasswordOtpExpires) {
-           return res.status(400).json({ error: "Invalid or expired OTP" });
-       }
+      // Check if the OTP is valid and not expired
+      if (user.resetPasswordOtp !== otp || Date.now() > user.resetPasswordOtpExpires) {
+         return res.status(400).json({ error: "Invalid or expired OTP" });
+      }
 
-       // Update the password
-       user.password = bcrypt.hashSync(password, bcryptSalt);
-       user.resetPasswordOtp = undefined; // Clear the OTP
-       user.resetPasswordOtpExpires = undefined; // Clear the expiration
-       await user.save();
+      // Update the password
+      user.password = bcrypt.hashSync(password, bcryptSalt);
+      user.resetPasswordOtp = undefined; // Clear the OTP
+      user.resetPasswordOtpExpires = undefined; // Clear the expiration
+      await user.save();
 
-       res.status(200).json({ message: "Password has been reset successfully." });
+      res.status(200).json({ message: "Password has been reset successfully." });
    } catch (error) {
-       console.error("Error resetting password:", error);
-       res.status(500).json({ error: "Failed to reset password" });
+      console.error("Error resetting password:", error);
+      res.status(500).json({ error: "Failed to reset password" });
    }
 });
 
-const eventSchema = new mongoose.Schema({
-   owner: String,
-   title: { type: String, required: true },
-   email: { type: String, required: true },
-   status: { type: String, enum: ["pending", "approved", "cancelled"], default: "pending" },
-   ticketSold: { type: Number, default: 0 },
-   refunds: { type: Number, default: 0 },
-   createdAt: { type: Date, default: Date.now },
-   description: String,
-   organizedBy: { type: String }, // Reference to Organiser,
-   eventDate: Date,
-   eventTime: String,
-   location: String,
-   Participants: { type: Number, default: 0 },
-   Count: { type: Number, default: 0 },
-   Income: { type: Number, default: 0 },
-   ticketPrice: { type: Number, default: 0 },
-   Quantity: { type: Number, default: 0 },
-   image: String,
-   likes: { type: Number, default: 0 },
-   Comment: [String],
-});
-
-const Event = mongoose.model("Event", eventSchema);
 
 // Create Event API
 app.post("/createEvent", upload.single("image"), async (req, res) => {
    const { token } = req.cookies; // Get the token from cookies
+   if (!token) {
+      return res.status(401).json({ error: "Unauthorized" });
+   }
+   // Input validation
+   const { title, eventDate, eventTime, location, ticketPrice } = req.body;
+   if (!title || !eventDate || !eventTime || !location || !ticketPrice) {
+      return res.status(400).json({ error: "All fields are required." });
+   }
+   // const { token } = req.cookies; // Get the token from cookies
    if (!token) {
       return res.status(401).json({ error: "Unauthorized" });
    }
@@ -285,8 +289,9 @@ app.post("/createEvent", upload.single("image"), async (req, res) => {
       try {
          const eventData = req.body;
          const user = await UserModel.findById(userData.id); // Fetch the user to get their name
-         eventData.organizedBy = user.name; // Set the organizer's name
+         eventData.organizedBy = user._id; // Set the organizer's name
 
+         console.log("Event Data:", eventData);
          // Check if required fields are present
          if (!eventData.title || !eventData.eventDate || !eventData.eventTime || !eventData.location || !eventData.ticketPrice) {
             return res.status(400).json({ error: "All fields are required." });
@@ -312,10 +317,10 @@ app.post("/createEvent", upload.single("image"), async (req, res) => {
                      title: newEvent.title,
                      ticketPrice: newEvent.ticketPrice,
                      ticketSold: newEvent.ticketSold,
-                     income: newEvent.Income,
+                     income: newEvent.ticketPrice * newEvent.ticketSold,
                   }
                },
-               $inc: { eventsOrganised: 1, totalPriceOverall: newEvent.Income } // Increment events organized and total income
+               $inc: { eventsOrganised: 1, totalPriceOverall: newEvent.ticketPrice * newEvent.ticketSold } // Increment events organized and total income
             });
          }
 
@@ -332,7 +337,7 @@ app.get("/createEvent", async (req, res) => {
       const events = await Event.find();
       res.status(200).json(events);
    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch events from MongoDB" });
+      res.status(500).json({ error: "Failed to fetch events from MongoDB", details: error.message });
    }
 });
 
@@ -390,9 +395,31 @@ app.get("/event/:id/ordersummary", async (req, res) => {
 app.get("/event/:id/ordersummary/paymentsummary", async (req, res) => {
    const { id } = req.params;
    try {
-      const event = await Event.findById(id);
-      res.json(event);
+      console.log("Fetching event with ID:", id); // Log the event ID
+      // Fetch the event and populate the organizer details
+      const event = await Event.findById(id).populate('organizedBy', 'name email'); // Populate name and email fields
+
+      if (!event) {
+         return res.status(404).json({ error: "Event not found" });
+      }
+
+      // Prepare the response object
+      const response = {
+         title: event.title,
+         eventDate: event.eventDate,
+         eventTime: event.eventTime,
+         location: event.location,
+         ticketPrice: event.ticketPrice,
+         organizer: {
+            name: event.organizedBy?.name,
+            email: event.organizedBy?.email,
+         },
+         // Add any other fields you want to return
+      };
+
+      res.json(response);
    } catch (error) {
+      console.error("Error fetching event:", error);
       res.status(500).json({ error: "Failed to fetch event from MongoDB" });
    }
 });
@@ -454,21 +481,21 @@ app.get("/events/dashboard-stats", async (req, res) => {
 
 app.get('/organizers', async (req, res) => {
    try {
-     // Fetch all organizers from the database
-     const organizers = await OrganiserModel.find(); // Adjust the query as needed
- 
-     // Check if any organizers were found
-     if (!organizers || organizers.length === 0) {
-       return res.status(404).json({ message: "No organizers found." });
-     }
- 
-     // Return the list of organizers
-     res.status(200).json(organizers);
+      // Fetch all organizers from the database
+      const organizers = await OrganiserModel.find(); // Adjust the query as needed
+
+      // Check if any organizers were found
+      if (!organizers || organizers.length === 0) {
+         return res.status(404).json({ message: "No organizers found." });
+      }
+
+      // Return the list of organizers
+      res.status(200).json(organizers);
    } catch (error) {
-     console.error("Error fetching organizers:", error);
-     res.status(500).json({ message: "Failed to fetch organizers." });
+      console.error("Error fetching organizers:", error);
+      res.status(500).json({ message: "Failed to fetch organizers." });
    }
- });
+});
 
 app.get("/organizers/:email", async (req, res) => {
    const { email } = req.params;
@@ -532,18 +559,18 @@ app.get("/organizers/dashboard-stats", async (req, res) => {
 const transporter = nodemailer.createTransport({
    service: 'Gmail', // Use your email service
    auth: {
-       user: process.env.EMAIL_USER, // Your email
-       pass: process.env.EMAIL_PASS, // Your email password
+      user: process.env.EMAIL_USER, // Your email
+      pass: process.env.EMAIL_PASS, // Your email password
    },
 });
 
 
-const sendConfirmationEmail = (to, ticketDetails) => {
+const sendConfirmationEmail = (to, ticketDetails, organizer) => {
    const mailOptions = {
-       from: process.env.EMAIL_USER,
-       to,
-       subject: '🎟️ Ticket Confirmation - Your Booking is Confirmed!',
-       html: `
+      from: process.env.EMAIL_USER,
+      to,
+      subject: '🎟️ Ticket Confirmation - Your Booking is Confirmed!',
+      html: `
             <div style="font-family: Arial, sans-serif; line-height: 1.6;">
                 <h2 style="color: #4CAF50;">Your Ticket has been Confirmed!</h2>
                 <p>Thank you for your purchase! Here are your ticket details:</p>
@@ -557,6 +584,9 @@ const sendConfirmationEmail = (to, ticketDetails) => {
                 </ul>
                 <h3>Your QR Code:</h3>
                 <img src="${ticketDetails.qr}" alt="QR Code" style="width: 200px; height: auto; border: 1px solid #ddd; border-radius: 4px;">
+                <h3>Organizer Details:</h3>
+                <p><strong>Name:</strong> ${organizer.name}</p>
+                <p><strong>Email:</strong> ${organizer.email}</p>
                 <p style="margin-top: 20px;">We look forward to seeing you at the event!</p>
                 <p style="color: #888;">If you have any questions, feel free to contact us.</p>
             </div>
@@ -564,44 +594,77 @@ const sendConfirmationEmail = (to, ticketDetails) => {
    };
 
    transporter.sendMail(mailOptions, (error, info) => {
-       if (error) {
-           console.error("Error sending email:", error);
-       } else {
-           console.log('Email sent: ' + info.response);
-       }
+      if (error) {
+         console.error("Error sending email:", error);
+      } else {
+         console.log('Email sent: ' + info.response);
+      }
    });
 };
 
 app.post("/tickets", async (req, res) => {
+   const { ticketDetails }= req.body;
+
+   if (!ticketDetails || !ticketDetails.totaltickets) {
+      return res.status(400).json({ error: "Total tickets quantity is required." });
+   }
    try {
-       const ticketDetails = req.body;
+      console.log("Incoming ticket details:", ticketDetails);
 
-       // Log incoming ticket details for debugging
-       console.log("Incoming ticket details:", ticketDetails);
+      if (!ticketDetails.ticketDetails.totaltickets) {
+         return res.status(400).json({ error: "Total tickets quantity is required." });
+      }
 
-       // Ensure that the ticketDetails includes the quantity
-       if (!ticketDetails.ticketDetails.totaltickets) {
-           return res.status(400).json({ error: "Total tickets quantity is required." });
-       }
+      const newTicket = new Ticket(ticketDetails);
+      await newTicket.save();
 
-       const newTicket = new Ticket(ticketDetails);
-       await newTicket.save();
+      // Fetch the event using the event ID from ticketDetails
+      const event = await Event.findById(ticketDetails.eventid);
+      if (!event) {
+         return res.status(404).json({ error: "Event not found" }); // Handle case where event is not found
+      }
+      // Update event details
+      event.ticketSold += ticketDetails.totaltickets; // Increment ticket sold
+      event.Income += ticketDetails.totaltickets * event.ticketPrice; // Update income
+      await event.save();
 
-       // Update the corresponding event
-       const event = await Event.findById(ticketDetails.eventid);
-       if (event) {
-           event.ticketSold += ticketDetails.ticketDetails.totaltickets; // Increment ticket sold
-           event.Income += ticketDetails.ticketDetails.totaltickets * event.ticketPrice; // Update income
-           await event.save();
-       }
 
-        // Send confirmation email
-        sendConfirmationEmail(ticketDetails.ticketDetails.email, ticketDetails.ticketDetails);
+      // Find the organizer for the event
+      const organizer = await OrganiserModel.findById(event.organizedBy);
+      if (!organizer) {
+         return res.status(404).json({ error: "Organizer not found" }); // Handle case where organizer is not found
+      }
 
-       return res.status(201).json({ ticket: newTicket });
+      const { name: userName, email: userEmail } = ticketDetails
+      const organizerMailOptions = {
+         from: process.env.EMAIL_USER,
+         to: organizer.email,
+         subject: 'New Ticket Booking Notification',
+         html: `
+                   <div>
+                       <h2>New Ticket Booking</h2>
+                       <p>A new ticket has been booked for your event.</p>
+                       <p><strong>User Name:</strong> ${userName}</p>
+                       <p><strong>User Email:</strong> ${userEmail}</p>
+                       <p><strong>Event Name:</strong> ${ticketDetails.eventname}</p>
+                   </div>
+               `,
+      };
+
+      // Send email to the organizer
+      try {
+         await transporter.sendMail(organizerMailOptions);
+     } catch (emailError) {
+         console.error("Error sending email to organizer:", emailError);
+         // Optionally, you can choose to log this error but still return a success response
+     }
+      // Send confirmation email to the user
+      sendConfirmationEmail(ticketDetails.ticketDetails.email, ticketDetails.ticketDetails);
+
+      return res.status(201).json({ ticket: newTicket });
    } catch (error) {
-       console.error("Error creating ticket:", error); // Log the error
-       return res.status(500).json({ error: "Failed to create ticket" });
+      console.error("Error creating ticket:", error); // Log the error
+      return res.status(500).json({ error: "Failed to create ticket" });
    }
 });
 
@@ -676,73 +739,112 @@ app.delete("/tickets/:id", async (req, res) => {
    }
 });
 
-
 io.on("connection", (socket) => {
-   console.log("New client connected");
- 
-   // ✅ User joins chat room
-   socket.on("join", (email) => {
-     socket.join(email);
-     console.log(`${email} joined the chat room`);
-   });
- 
-   socket.on("send-message", async (message) => {
-     try {
-       // ✅ Save to database
-       const newMessage = new MessageModel(message);
-       await newMessage.save();
- 
-       // ✅ Emit message to receiver in real-time
-       io.to(message.receiverEmail).emit("receiveMessage", message);
-       console.log("Message sent to:", message.receiverEmail);
-     } catch (error) {
-       console.error("Error sending message:", error);
-     }
-   });
- 
-   socket.on("disconnect", () => {
-     console.log("Client disconnected");
-   });
- });
- 
- 
- app.post("/send-message", async (req, res) => {
-   const { senderEmail, receiverEmail, content } = req.body;
- 
-   try {
-     // Save the message to the database
-     const message = new Message({ senderEmail, receiverEmail, content });
-     await message.save();
- 
-     // Emit the message to the receiver
-     io.to(receiverEmail).emit("receiveMessage", message);
- 
-     res.status(200).json({ message: "Message sent successfully" });
-   } catch (error) {
-     console.error("Error sending message:", error);
-     res.status(500).json({ error: "Failed to send message" });
-   }
- });
- 
- app.get("/messages/:userEmail/:organizerEmail", async (req, res) => {
-   const { userEmail, organizerEmail } = req.params;
- 
-   try {
-     const messages = await MessageModel.find({
-       $or: [
-         { senderEmail: userEmail, receiverEmail: organizerEmail },
-         { senderEmail: organizerEmail, receiverEmail: userEmail },
-       ],
-     }).sort({ timestamp: 1 });
- 
-     res.json(messages);
-   } catch (error) {
-     console.error("Error fetching messages:", error);
-     res.status(500).json({ error: "Failed to fetch messages" });
-   }
- });
+   console.log("New client connected:", socket.id);
 
-const PORT = process.env.PORT || 4000;
+   // User joins chat room
+   socket.on("join", (email) => {
+      if (!email) return console.error("Invalid email");
+      socket.join(email);
+      console.log(`${email} joined the chat room`);
+   });
+
+   // User leaves chat room
+   socket.on("leave", (email) => {
+      if (!email) return console.error("Invalid email");
+      socket.leave(email);
+      console.log(`${email} left the chat room`);
+   });
+
+   // Sending message
+   socket.on("send-message", async (message) => {
+      try {
+         if (!message || !message.receiverEmail) {
+            return console.error("Invalid message data");
+         }
+
+         // Save message to database
+         const newMessage = new MessageModel(message);
+         await newMessage.save();
+
+         // Emit message to receiver
+         io.to(message.receiverEmail).emit("receiveMessage", message);
+         console.log(`Message sent to: ${message.receiverEmail}`);
+      } catch (error) {
+         console.error("Error sending message:", error);
+      }
+   });
+
+   socket.on("disconnect", () => {
+      console.log("Client disconnected:", socket.id);
+   });
+});
+
+
+
+app.post("/send-message", async (req, res) => {
+   try {
+      const { senderEmail, receiverEmail, content } = req.body;
+
+      // 🛑 Input Validation
+      if (!senderEmail || !receiverEmail || !content) {
+         return res.status(400).json({ error: "All fields are required" });
+      }
+
+      // ✅ Save message to database
+      const newMessage = new Message({
+         senderEmail,
+         receiverEmail,
+         content,
+         timestamp: new Date() // Optional, since you have a default in the schema
+     });
+      console.log("New Message Document:", newMessage);
+      const savedMessage = await newMessage.save();
+
+      // ✅ Check if receiver is online
+      const receiverSockets = await io.in(receiverEmail).fetchSockets();
+      if (receiverSockets.length > 0) {
+         io.to(receiverEmail).emit("receiveMessage", savedMessage);
+      } else {
+         console.log(`User ${receiverEmail} is offline, message saved.`);
+      }
+
+      res.status(200).json({ message: "Message sent successfully", data: savedMessage });
+   } catch (error) {
+      console.error("Error sending message:", error);
+      res.status(500).json({ error: "Failed to send message" });
+   }
+});
+
+
+app.get("/messages/:userEmail/:organizerEmail", async (req, res) => {
+   try {
+      const { userEmail, organizerEmail } = req.params;
+
+      // 🛑 Validate Input
+      if (!userEmail || !organizerEmail) {
+         return res.status(400).json({ success: false, error: "Invalid request parameters" });
+      }
+
+      // ✅ Fetch messages sorted by timestamp
+      const messages = await Message.find({
+         $or: [
+            { senderEmail: userEmail, receiverEmail: organizerEmail },
+            { senderEmail: organizerEmail, receiverEmail: userEmail },
+         ],
+      })
+         .sort({ timestamp: 1 }) // Ascending order
+         .select("-__v"); // Remove version key
+
+      res.status(200).json({ success: true, data: messages });
+   } catch (error) {
+      console.error("Error fetching messages:", error);
+      res.status(500).json({ success: false, error: "Failed to fetch messages" });
+   }
+});
+
+
+const PORT = process.env.PORT || 8000;
 server.listen(PORT, () => {
    console.log(`Server is running on port ${PORT}`);
 });

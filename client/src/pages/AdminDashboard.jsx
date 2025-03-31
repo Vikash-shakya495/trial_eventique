@@ -101,7 +101,7 @@ const AdminDashboard = () => {
                 <td className="p-4 bg-gray-50 border-b rounded-2xl border-gray-300">{event.title}</td>
                 <td className="p-4 bg-gray-50 border-b rounded-2xl border-gray-300">{event.eventDate}</td>
                 <td className="p-4 bg-gray-50 border-b rounded-2xl border-gray-300">{event.location}</td>
-                <td className="p-4 bg-gray-50 border-b rounded-2xl border-gray-300">{event.organizedBy}</td>
+                <td className="p-4 bg-gray-50 border-b rounded-2xl border-gray-300">{event.owner}</td>
                 <td className={`p-4 ${event.status === "approved" ? "bg-green-200 text-green-500" : event.status === "cancelled" ? "bg-red-200 text-red-500" : "bg-yellow-200 text-yellow-500"}`}>
                   {event.status}
                 </td>
