@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+const punycode = require('punycode/');
 const mongoose = require("mongoose");
 const UserModel = require("./models/User");
 const OrganiserModel = require('./models/Organiser')
