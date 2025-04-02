@@ -29,6 +29,15 @@ const server = http.createServer(app);
 const bcryptSalt = bcrypt.genSaltSync(10);
 const jwtSecret = "bsbsfbrnsftentwnnwnwn";
 
+// Use CORS middleware for Express
+app.use(
+   cors({
+     origin: ["http://localhost:5173", "https://trial-eventique-event-booking-system-002-ctkpxdgcc.vercel.app"],
+     methods: ["GET", "POST", "PUT", "DELETE"],
+     credentials: true,
+   })
+ );
+
 app.use(cookieParser());
 const io = socketIo(server, {
    cors: {
@@ -51,14 +60,6 @@ mongoose.connect(process.env.MONGO_URL, {
 });
 
 
-// Use CORS middleware for Express
-app.use(
-   cors({
-     origin: ["http://localhost:5173", "https://trial-eventique-event-booking-system-002-ctkpxdgcc.vercel.app"],
-     methods: ["GET", "POST", "PUT", "DELETE"],
-     credentials: true,
-   })
- );
 
 
 app.use('/uploads', express.static('uploads'));
