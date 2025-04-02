@@ -14,7 +14,6 @@ const path = require("path");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const cloudinary = require("./config/cloudinary");
-// const { getDashboardStats } = require("../controllers/eventController");
 const Ticket = require("./models/Ticket");
 const Event = require('./models/Event');
 const http = require("http");
