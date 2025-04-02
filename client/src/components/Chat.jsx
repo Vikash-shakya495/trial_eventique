@@ -2,7 +2,9 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import axios from 'axios';
 
-const socket = io('https://eventique-backend-api.onrender.com/'); // Ensure single socket connection
+const socket = io("https://eventique-backend-api.onrender.com", { 
+    withCredentials: true 
+ });// Ensure single socket connection
 
 const Chat = ({ userEmail, userName, organizerEmail, organizerName }) => {
     const [messages, setMessages] = useState([]);
