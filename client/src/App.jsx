@@ -22,7 +22,7 @@ import UserProfile from './pages/UserProfile'
 import ProtectedRoute from './ProtectedRoute';
 
 // axios.defaults.baseURL = 'http://localhost:4000/'
-axios.defaults.baseURL = 'https://eventique-backend-api.onrender.com/'
+axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 axios.defaults.withCredentials = true
 
 function App() {

@@ -41,6 +41,7 @@ const io = socketIo(server, {
 
 
 
+
 mongoose.connect(process.env.MONGO_URL, {
    useNewUrlParser: true,
    useUnifiedTopology: true,
@@ -54,9 +55,17 @@ mongoose.connect(process.env.MONGO_URL, {
 
 // Use CORS middleware for Express
 app.use(cors({
+   origin: "https://trial-eventique-event-booking-system-002.vercel.app/", // Allow your frontend origin
+   credentials: true // Allow credentials if needed
+}));
+app.use(cors({
    origin: "http://localhost:5173", // Allow your frontend origin
    credentials: true // Allow credentials if needed
 }));
+
+
+app.use('/uploads', express.static('uploads'));
+
 app.use(express.json());
 
 const storage = multer.diskStorage({
