@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import axios from 'axios'
-import { UserContext } from '../UserContext'
+import logo from '../assets/logo1.png';
 import useUserStore from '../store'
 
 
@@ -141,7 +141,7 @@ export default function LoginPage() {
       <div className='flex flex-col -ml-96 gap-3'>
         <div className='text-3xl font-black'>Welcome to</div>
         <div>
-          <img src="../src/assets/logo1.png" alt="" className="w-48"/>
+          <img src={logo} alt="" className="w-48"/>
         </div>
       </div>
 

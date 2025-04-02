@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import axios from 'axios'
 import { Link, useNavigate } from "react-router-dom";
-import { UserContext } from "../UserContext";
+import logo from '../assets/logo1.png'
 import { RxExit } from 'react-icons/rx';
 import { BsFillCaretDownFill } from 'react-icons/bs';
 import useUserStore from "../store";
@@ -54,7 +54,7 @@ export default function Header() {
       <header className='flex py-2 px-6 sm:px-6 justify-between place-items-center'>
 
         <Link to={'/'} className="flex item-center ">
-          <img src="../src/assets/logo1.png" alt="" className='w-26 h-24' />
+          <img src={logo} alt="" className='w-26 h-24' />
         </Link>
         {/* <div className='flex  rounded py-2.5 px-4 w-1/3 gap-4 items-center '>
 
