@@ -75,6 +75,10 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+
+app.get('/',(req,res) => {
+   res.send("server is working");
+})
 app.get("/test", (req, res) => {
    res.json("test ok");
 });
