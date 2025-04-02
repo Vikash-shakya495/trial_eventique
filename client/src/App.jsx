@@ -21,7 +21,8 @@ import OrganizerDashboard from './pages/OrganizerDashboard'
 import UserProfile from './pages/UserProfile'
 import ProtectedRoute from './ProtectedRoute';
 
-axios.defaults.baseURL = 'http://localhost:4000/'
+// axios.defaults.baseURL = 'http://localhost:4000/'
+axios.defaults.baseURL = 'https://eventique-backend-api.onrender.com/'
 axios.defaults.withCredentials = true
 
 function App() {
