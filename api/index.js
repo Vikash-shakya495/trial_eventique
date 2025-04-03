@@ -32,7 +32,7 @@ const jwtSecret = "bsbsfbrnsftentwnnwnwn";
 // Use CORS middleware for Express
 app.use(
    cors({
-     origin: ["http://localhost:5173", "https://trial-eventique-001-event-booking-system.vercel.app/"],
+     origin: ["http://localhost:5173",process.env.VITE_API_BASE_URL],
      methods: ["GET", "POST", "PUT", "DELETE"],
      credentials: true,
    })
@@ -41,7 +41,7 @@ app.use(
 app.use(cookieParser());
 const io = socketIo(server, {
    cors: {
-      origin: ["http://localhost:5173", "https://trial-eventique-001-event-booking-system.vercel.app/"],
+      origin: ["http://localhost:5173",process.env.VITE_API_BASE_URL],
       methods: ["GET", "POST"],
       credentials: true
    }

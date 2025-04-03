@@ -3,7 +3,7 @@ import { io } from 'socket.io-client';
 import axios from 'axios';
 
 
-const socket = io("https://eventique-backend-api.onrender.com", {
+const socket = io(import.meta.env.VITE_API_URL, {
     withCredentials: true
 });// Ensure single socket connection
 
