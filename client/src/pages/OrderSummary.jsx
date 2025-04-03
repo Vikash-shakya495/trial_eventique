@@ -49,133 +49,107 @@ export default function OrderSummary() {
   if (!event) return "";
 
   return (
-    <div>
-      <Link to={'/event/' + event._id}>
-        <button
-          // onClick={handleBackClick}
-          className='
-              inline-flex 
-              mt-12
-              gap-2
-              p-3 
-              ml-12
-              bg-gray-100
-              justify-center 
-              items-center 
-              text-blue-700
-              font-bold
-              rounded-md'
-        >
-          <IoMdArrowBack
-            className='
-            font-bold
-            w-6
-            h-6
-            gap-2'/>
-          Back
-        </button>
-      </Link>
-      <div className='flex flex-col'>
-        <div className='inline-flex gap-5 mt-8'>
-          <div className="
-                      p-4
-                      ml-12 
-                      bg-gray-100
-                      w-3/4
-                      mb-12"
-          >
-            <h2
-              className='
-                            text-left
-                            font-bold
-                            '>
-              Terms & Conditions </h2>
-            <br />
-
-            <div>
-              <ul className="custom-list">
-                <li> Refunds will be provided for ticket cancellations made up to 14 days before the event date. After this period, no refunds will be issued. To request a refund, please contact our customer support team. </li>
-
-                <li> Tickets will be delivered to your registered email address as e-tickets. You can print the e-ticket or show it on your mobile device for entry to the event. </li>
-
-                <li> Each individual is allowed to purchase a maximum of 2 tickets for this event to ensure fair distribution. </li>
-
-                <li> In the rare event of cancellation or postponement, attendees will be notified via email. Refunds will be automatically processed for canceled events. </li>
-
-                <li> Tickets for postponed events will not be refunded and the ticket will be considered a valid ticket on the date of postponement.</li>
-
-                <li> Your privacy is important to us. Our privacy policy outlines how we collect, use, and protect your personal information. By using our app, you agree to our privacy policy. </li>
-
-                <li> Before proceeding with your ticket purchase, please review and accept our terms and conditions, which govern the use of our app and ticketing services. </li>
-              </ul>
-
-              <br />
-            </div>
-
+    <div className="bg-slate-900 min-h-screen text-white p-6">
+    {/* Back Button */}
+    <Link to={'/event/' + event._id}>
+      <button
+        className="
+          inline-flex 
+          mt-12
+          gap-2
+          p-3 
+          ml-12
+          bg-gray-800
+          hover:bg-blue-700
+          text-white
+          justify-center 
+          items-center 
+          font-bold
+          rounded-md
+          transition duration-300"
+      >
+        <IoMdArrowBack className="w-6 h-6" />
+        Back
+      </button>
+    </Link>
+  
+    <div className="flex flex-col">
+      <div className="inline-flex gap-5 mt-8">
+        {/* Terms & Conditions */}
+        <div className="p-6 ml-12 bg-gray-800 text-white w-3/4 rounded-md shadow-lg">
+          <h2 className="text-left font-bold text-orange-400">Terms & Conditions</h2>
+          <br />
+          <ul className="space-y-3 text-gray-300">
+            <li>Refunds will be provided for ticket cancellations made up to 14 days before the event date.</li>
+            <li>Tickets will be sent as e-tickets via email. Show it on your device or print it for entry.</li>
+            <li>Each person can purchase a maximum of 2 tickets to ensure fair distribution.</li>
+            <li>In case of cancellation or postponement, notifications will be sent via email.</li>
+            <li>Tickets for postponed events remain valid for the new date and are non-refundable.</li>
+            <li>Your privacy is important; by using our app, you agree to our privacy policy.</li>
+            <li>Review and accept our terms before purchasing your tickets.</li>
+          </ul>
+        </div>
+  
+        {/* Booking Summary */}
+        <div className="w-1/4 p-6 bg-blue-950 text-white rounded-md shadow-lg">
+          <h2 className="mt-2 font-bold text-orange-400">Booking Summary</h2>
+  
+          {/* Event Details */}
+          <div className="text-sm flex justify-between text-gray-300 mt-5">
+            <div className="text-left">{event.title}</div>
+            <div className="text-right pr-5">LKR. {event.ticketPrice}</div>
           </div>
-
-          <div className="w-1/4 pl-4 h-1/4 mr-12 bg-blue-100">
-      <h2 className="mt-4 font-bold">Booking Summary</h2>
-
-      {/* Event Details */}
-      <div className="text-sm flex justify-between">
-        <div className="text-left mt-5">{event.title}</div>
-        <div className="text-right mt-5 mb-6 pr-5">LKR. {event.ticketPrice}</div>
-      </div>
-
-      {/* Quantity Controls */}
-      <div className="flex justify-between items-center mt-3">
-        <button
-          onClick={decreaseQuantity}
-          className="px-3 py-1 bg-gray-300 text-lg font-bold rounded"
-        >
-          -
-        </button>
-        <span className="text-lg font-bold">{quantity}</span>
-        <button
-          onClick={increaseQuantity}
-          className="px-3 py-1 bg-blue-700 text-white text-lg font-bold rounded"
-        >
-          +
-        </button>
-      </div>
-
-      {/* Sub Total */}
-      <hr className="my-2 pt-2 border-gray-300" />
-      <div className="text-sm font-bold flex justify-between">
-        <div className="text-left mt-5">SUB TOTAL</div>
-        <div className="text-right mt-5 mb-6 pr-5">
-          LKR. {quantity * event.ticketPrice}
+  
+          {/* Quantity Controls */}
+          <div className="flex justify-between items-center mt-5">
+            <button
+              onClick={decreaseQuantity}
+              className="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white text-lg font-bold rounded-md transition duration-300"
+            >
+              -
+            </button>
+            <span className="text-lg font-bold">{quantity}</span>
+            <button
+              onClick={increaseQuantity}
+              className="px-3 py-1 bg-blue-700 hover:bg-orange-500 text-white text-lg font-bold rounded-md transition duration-300"
+            >
+              +
+            </button>
+          </div>
+  
+          {/* Sub Total */}
+          <hr className="my-4 border-gray-600" />
+          <div className="text-sm font-bold flex justify-between text-gray-300">
+            <div className="text-left">SUB TOTAL</div>
+            <div className="text-right pr-5">LKR. {quantity * event.ticketPrice}</div>
+          </div>
+  
+          {/* Checkbox */}
+          <div className="flex items-center mt-4 text-gray-300">
+            <input className="h-5 w-5 accent-orange-500" type="checkbox" onChange={handleCheckboxChange} />
+            <div className="px-2 text-xs">
+              I have verified the Event name, date, and time before proceeding. I accept the terms and conditions.
+            </div>
+          </div>
+  
+          {/* Proceed Button */}
+          <div className="mt-5">
+            <Link to={`/event/${event._id}/ordersummary/paymentsummary`}>
+              <button
+                className={`p-3 w-full text-gray-100 font-bold rounded-md transition duration-300 ${
+                  isCheckboxChecked ? "bg-blue-700 hover:bg-orange-500" : "bg-gray-500 cursor-not-allowed"
+                }`}
+                disabled={!isCheckboxChecked}
+              >
+                Proceed
+              </button>
+            </Link>
+          </div>
         </div>
-      </div>
-
-      {/* Checkbox */}
-      <div className="flex justify-between">
-        <input className="h-5" type="checkbox" onChange={handleCheckboxChange} />
-        <div className="px-2 text-sm">
-          I have verified the Event name, date and time before proceeding to payment. I accept terms and conditions.
-        </div>
-      </div>
-
-      {/* Proceed Button */}
-      <div className="mb-5">
-        <Link to={`/event/${event._id}/ordersummary/paymentsummary`}>
-          <button
-            className={`mt-5 p-3 ml-2 w-36 text-gray-100 ${
-              isCheckboxChecked ? "bg-blue-700" : "bg-gray-300"
-            } gap-2 rounded-md`}
-            disabled={!isCheckboxChecked}
-          >
-            Proceed
-          </button>
-        </Link>
       </div>
     </div>
-        </div>
-
-      </div>
-
-    </div>
+  </div>
+  
 
   );
 }

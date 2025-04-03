@@ -41,13 +41,13 @@ export default function PaymentSummary() {
   const [ticketId, setTicketId] = useState(''); // State to hold the generated ticketId
 
 
-//   const transporter = nodemailer.createTransport({
-//     service: 'Gmail', // Use your email service
-//     auth: {
-//         user: process.env.EMAIL_USER, // Your email
-//         pass: process.env.EMAIL_PASS, // Your email password
-//     },
-// });
+  //   const transporter = nodemailer.createTransport({
+  //     service: 'Gmail', // Use your email service
+  //     auth: {
+  //         user: process.env.EMAIL_USER, // Your email
+  //         pass: process.env.EMAIL_PASS, // Your email password
+  //     },
+  // });
 
   // Function to send confirmation email
   // const sendConfirmationEmail = (to, ticketDetails) => {
@@ -153,72 +153,72 @@ export default function PaymentSummary() {
   const createTicket = async (e) => {
     e.preventDefault();
     try {
-        const qrCode = await generateQRCode(
-            ticketDetails.ticketDetails.eventname,
-            ticketDetails.ticketDetails.name
-        );
+      const qrCode = await generateQRCode(
+        ticketDetails.ticketDetails.eventname,
+        ticketDetails.ticketDetails.name
+      );
 
-        if (!ticketId) {
-            console.error("Ticket ID is not generated.");
-            return;
+      if (!ticketId) {
+        console.error("Ticket ID is not generated.");
+        return;
+      }
+
+      const updatedTicketDetails = {
+        ...ticketDetails,
+        ticketDetails: {
+          ...ticketDetails.ticketDetails,
+          qr: qrCode,
+          totaltickets: ticketQuantity,
+          ticketId: ticketId,
+          email: details.email,
         }
+      };
 
-        const updatedTicketDetails = {
-            ...ticketDetails,
-            ticketDetails: {
-                ...ticketDetails.ticketDetails,
-                qr: qrCode,
-                totaltickets: ticketQuantity,
-                ticketId: ticketId,
-                email: details.email, 
-            }
-        };
+      // Create a payment order on the server
+      const paymentResponse = await axios.post('/create-order', {
+        amount: event.ticketPrice * ticketQuantity * 100, // Amount in paise
+        currency: 'INR',
+        receipt: ticketId,
+      });
 
-        // Create a payment order on the server
-        const paymentResponse = await axios.post('/create-order', {
-            amount: event.ticketPrice * ticketQuantity * 100, // Amount in paise
-            currency: 'INR',
-            receipt: ticketId,
-        });
+      const options = {
+        key: 'rzp_test_aNekzbf3DEXHpA', // Enter the Key ID generated from the Razorpay Dashboard
+        amount: paymentResponse.data.amount, // Amount is in currency subunits. Default currency is INR. Hence, 100 refers to 100 paise or ₹1.
+        currency: paymentResponse.data.currency,
+        name: event.title,
+        description: 'Ticket Purchase',
+        order_id: paymentResponse.data.id, // This is the order_id created in the previous step
+        handler: async () => {
+          // Call your backend to save the ticket details
+          await axios.post(`/tickets`, updatedTicketDetails).then(() => {
+            console.log('ticket is send to create')
+          }).catch((err) => {
+            console.log('ticket is not going to create', err)
+          });
+          console.log("updated ticketDetails : ", updatedTicketDetails.ticketDetails);
 
-        const options = {
-            key: 'rzp_test_aNekzbf3DEXHpA', // Enter the Key ID generated from the Razorpay Dashboard
-            amount: paymentResponse.data.amount, // Amount is in currency subunits. Default currency is INR. Hence, 100 refers to 100 paise or ₹1.
-            currency: paymentResponse.data.currency,
-            name: event.title,
-            description: 'Ticket Purchase',
-            order_id: paymentResponse.data.id, // This is the order_id created in the previous step
-            handler: async () => {
-                // Call your backend to save the ticket details
-                await axios.post(`/tickets`, updatedTicketDetails).then(() => {
-                  console.log('ticket is send to create')
-                }).catch((err) => {
-                  console.log('ticket is not going to create', err)
-                });
-                console.log("updated ticketDetails : ",updatedTicketDetails.ticketDetails);
-                
-                // Send confirmation email
-                // sendConfirmationEmail(details.email, updatedTicketDetails.ticketDetails);
+          // Send confirmation email
+          // sendConfirmationEmail(details.email, updatedTicketDetails.ticketDetails);
 
-                alert("Ticket Created");
-                setRedirect(true);
-            },
-            prefill: {
-                name: details.name,
-                email: details.email,
-                contact: details.contactNo,
-            },
-            theme: {
-                color: '#00008b',
-            },
-        };
+          alert("Ticket Created");
+          setRedirect(true);
+        },
+        prefill: {
+          name: details.name,
+          email: details.email,
+          contact: details.contactNo,
+        },
+        theme: {
+          color: '#00008b',
+        },
+      };
 
-        const rzp = new window.Razorpay(options);
-        rzp.open();
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     } catch (error) {
-        console.error('Error creating ticket:', error);
+      console.error('Error creating ticket:', error);
     }
-};
+  };
 
   async function generateQRCode(name, eventName) {
     try {
@@ -244,23 +244,24 @@ export default function PaymentSummary() {
     <>
       <div>
         <Link to={'/event/' + event._id + '/ordersummary'}>
-          <button className='inline-flex mt-12 gap-2 p-3 ml-12 bg-gray-100 justify-center items-center text-blue-700 font-bold rounded-sm'>
+          <button className='inline-flex mt-12 gap-2 p-3 ml-12 bg-slate-900 text-white justify-center items-center font-bold rounded-sm hover:bg-orange-500 transition'>
             <IoMdArrowBack className='font-bold w-6 h-6 gap-2' />
             Back
           </button>
         </Link>
       </div>
-      <div className="ml-12 bg-gray-100 shadow-lg mt-8 p-16 w-3/5 float-left">
+
+      <div className="ml-12 bg-gray-800 text-white shadow-lg mt-8 p-16 w-3/5 float-left rounded-lg">
         {/* Your Details */}
         <div className="mt-8 space-y-4">
-          <h2 className="text-xl font-bold mb-4">Your Details</h2>
+          <h2 className="text-2xl font-bold text-orange-500">Your Details</h2>
           <input
             type="text"
             name="name"
             value={details.name}
             onChange={handleChangeDetails}
             placeholder="Name"
-            className="input-field ml-10 w-80 h-10 bg-gray-50 border border-gray-30 rounded-md p-2.5"
+            className="input-field ml-10 w-80 h-10 bg-gray-700 text-white border border-gray-600 rounded-md p-2.5 focus:border-orange-500"
           />
           <input
             type="email"
@@ -268,34 +269,33 @@ export default function PaymentSummary() {
             value={details.email}
             onChange={handleChangeDetails}
             placeholder="Email"
-            className="input-field w-80 ml-3 h-10 bg-gray-50 border border-gray-30 rounded-sm p-2.5"
+            className="input-field w-80 ml-3 h-10 bg-gray-700 text-white border border-gray-600 rounded-md p-2.5 focus:border-orange-500"
           />
-          <div className="flex space-x-4">
-            <input
-              type="tel"
-              name="contactNo"
-              value={details.contactNo}
-              onChange={handleChangeDetails}
-              placeholder="Contact No"
-              className="input-field ml-10 w-80 h-10 bg-gray-50 border border-gray-30 rounded-sm p-2.5"
-            />
-          </div>
+          <input
+            type="tel"
+            name="contactNo"
+            value={details.contactNo}
+            onChange={handleChangeDetails}
+            placeholder="Contact No"
+            className="input-field ml-10 w-80 h-10 bg-gray-700 text-white border border-gray-600 rounded-md p-2.5 focus:border-orange-500"
+          />
         </div>
 
         {/* Payment Option */}
         <div className="mt-10 space-y-4">
-          <h2 className="text-xl font-bold mb-4">Payment Option</h2>
+          <h2 className="text-2xl font-bold text-orange-500">Payment Option</h2>
           <div className="ml-10">
-            <button type="button" className="px-8 py-3 text-black bg-blue-100 focus:outline border rounded-sm border-gray-300" disabled>Credit / Debit Card</button>
+            <button type="button" className="px-8 py-3 text-white bg-slate-900 border border-gray-600 rounded-md" disabled>
+              Credit / Debit Card
+            </button>
           </div>
-
           <input
             type="text"
             name="nameOnCard"
             value="A.B.S.L. Perera"
             onChange={handleChangePayment}
             placeholder="Name on Card"
-            className="input-field w-80 ml-10 h-10 bg-gray-50 border border-gray-30 rounded-sm p-2.5"
+            className="input-field w-80 ml-10 h-10 bg-gray-700 text-white border border-gray-600 rounded-md p-2.5 focus:border-orange-500"
           />
           <input
             type="text"
@@ -303,56 +303,47 @@ export default function PaymentSummary() {
             value="5648 3212 7802"
             onChange={handleChangePayment}
             placeholder="Card Number"
-            className="input-field w-80 ml-3 h-10 bg-gray-50 border border-gray-30 rounded-sm p-2.5"
+            className="input-field w-80 ml-3 h-10 bg-gray-700 text-white border border-gray-600 rounded-md p-2.5 focus:border-orange-500"
           />
           <div className="flex space-x-4">
-            <div className="relative">
-              <input
-                type="text"
-                name="expiryDate"
-                value="12/25"
-                onChange={handleChangePayment}
-                placeholder="Expiry Date (MM/YY)"
-                className="input-field w-60 ml-10 h-10 bg-gray-50 border border-gray-30 rounded-sm p-2.5"
-              />
-            </div>
-
+            <input
+              type="text"
+              name="expiryDate"
+              value="12/25"
+              onChange={handleChangePayment}
+              placeholder="Expiry Date (MM/YY)"
+              className="input-field w-60 ml-10 h-10 bg-gray-700 text-white border border-gray-600 rounded-md p-2.5 focus:border-orange-500"
+            />
             <input
               type="text"
               name="cvv"
               value="532"
               onChange={handleChangePayment}
               placeholder="CVV"
-              className="input-field w-16 h-10 bg-gray-50 border border-gray-30 rounded-sm p-3"
+              className="input-field w-16 h-10 bg-gray-700 text-white border border-gray-600 rounded-md p-3 focus:border-orange-500"
             />
           </div>
           <div className="float-right">
             <p className="text-sm font-semibold pb-2 pt-8">Total : LKR. {event.ticketPrice}</p>
             <Link to={'/'}>
-              <button type="button"
-                onClick={createTicket}
-                className="primary">
+              <button type="button" onClick={createTicket} className="px-6 py-3 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition">
                 Make Payment
               </button>
             </Link>
           </div>
         </div>
       </div>
-      <div className="float-right bg-blue-100 w-1/4 p-5 mt-8 mr-12">
-        <h2 className="text-xl font-bold mb-8">Order Summary</h2>
+
+      <div className="float-right bg-slate-900 text-white w-1/4 p-5 mt-8 mr-12 rounded-lg">
+        <h2 className="text-2xl font-bold text-orange-500">Order Summary</h2>
         <div className="space-y-1">
-          <div>
-            <p className="float-right">Ticket</p>
-          </div>
+          <p className="float-right text-gray-400">Ticket</p>
           <p className="text-lg font-semibold">{event.title}</p>
-          <p className="text-xs">{event.eventDate.split("T")[0]},</p>
-          <p className="text-xs pb-2"> {event.eventTime}</p>
-          <hr className="my-2 border-t pt-2 border-gray-400" />
+          <p className="text-xs text-gray-400">{event.eventDate.split("T")[0]},</p>
+          <p className="text-xs pb-2 text-gray-400"> {event.eventTime}</p>
+          <hr className="my-2 border-t pt-2 border-gray-600" />
           <p className="float-right font-bold">LKR. {event.ticketPrice}</p>
           <p className="font-bold">Sub total: {event.ticketPrice}</p>
-          {/* <p className="font-bold">Ticket ID: {ticketId}</p>
-          <p className="font-bold">Organizer: {event.organizedBy.name}</p> {/* Display organizer's name */}
-          {/* <p className="font-bold">Organizer Email: {event.organizedBy.email}</p> Display organizer's email */}
         </div>
       </div>
     </>

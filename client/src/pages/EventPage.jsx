@@ -44,81 +44,107 @@ export default function EventPage() {
   
 if (!event) return '';
   return (
-    <div className="flex flex-col mx-5 xl:mx-32 md:mx-10 mt-5 flex-grow">
-     <div >
-        {event.image &&(
-          <img src={`${event.image}`} alt=""  className='rounded object-cover mx-auto w-2/4 '/>
-        )}
-      </div>
+    <div className="flex flex-col mx-5 xl:mx-32 md:mx-10 mt-5 flex-grow bg-slate-900 text-white p-6 rounded-lg shadow-lg">
+  {/* Event Image */}
+  <div>
+    {event.image && (
+      <img
+        src={`${event.image}`}
+        alt=""
+        className="rounded object-cover mx-auto w-2/4 border border-gray-700 shadow-md"
+      />
+    )}
+  </div>
 
-      {/* <img src="../src/assets/paduru.png" alt="" className='rounded object-fill aspect-16:9'/>  */}
-      {/* FIXME: This is a demo image after completing the create event function delete this */}
+  {/* Event Title & Booking */}
+  <div className="flex justify-between mt-8 mx-2">
+    <h1 className="text-3xl md:text-5xl font-extrabold text-orange-500">
+      {event.title.toUpperCase()}
+    </h1>
+    <Link to={"/event/" + event._id + "/ordersummary"}>
+      <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold transition-transform transform hover:scale-105">
+        Book Ticket
+      </button>
+    </Link>
+  </div>
 
-      <div className="flex justify-between mt-8 mx-2">
-          <h1 className="text-3xl md:text-5xl font-extrabold">{event.title.toUpperCase()}</h1>
-          <Link to={'/event/'+event._id+ '/ordersummary'}>
-            <button className="primary">Book Ticket</button>  
-          </Link>
-      </div>
-      <div className="mx-2">
-          <h2 className="text-md md:text-xl font-bold mt-3 text-primarydark">{event.ticketPrice === 0? 'Free' : 'LKR. '+ event.ticketPrice}</h2>
-      </div>
-      <div className="mx-2 mt-5 text-md md:text-lg truncate-3-lines">
-        {event.description}
-      </div>
-      <div className="mx-2 mt-5 text-md md:text-xl font-bold text-primarydark">
-        Organized By {event.owner}
-        
-      </div>
-      <div className="mx-2 mt-5">
-        <h1 className="text-md md:text-xl font-extrabold">When and Where </h1>
-        <div className="sm:mx-5 lg:mx-32 mt-6 flex flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <AiFillCalendar className="w-auto h-5 text-primarydark "/>
-            <div className="flex flex-col gap-1">
-              
-              <h1 className="text-md md:text-lg font-extrabold">Date and Time</h1>
-              <div className="text-sm md:text-lg">
-              Date: {event.eventDate.split("T")[0]} <br />Time: {event.eventTime}
-              </div>
-            </div>
-            
+  {/* Ticket Price */}
+  <div className="mx-2">
+    <h2 className="text-md md:text-xl font-bold mt-3 text-orange-400">
+      {event.ticketPrice === 0 ? "Free" : "LKR. " + event.ticketPrice}
+    </h2>
+  </div>
+
+  {/* Event Description */}
+  <div className="mx-2 mt-5 text-md md:text-lg text-gray-300 truncate-3-lines">
+    {event.description}
+  </div>
+
+  {/* Organizer */}
+  <div className="mx-2 mt-5 text-md md:text-xl font-bold text-blue-400">
+    Organized By {event.owner}
+  </div>
+
+  {/* Date, Time & Location */}
+  <div className="mx-2 mt-5">
+    <h1 className="text-md md:text-xl font-extrabold text-white">
+      When and Where
+    </h1>
+    <div className="sm:mx-5 lg:mx-32 mt-6 flex flex-row items-center justify-between gap-4">
+      {/* Date & Time */}
+      <div className="flex items-center gap-4">
+        <AiFillCalendar className="w-auto h-5 text-gray-300" />
+        <div className="flex flex-col gap-1">
+          <h1 className="text-md md:text-lg font-extrabold text-orange-400">
+            Date and Time
+          </h1>
+          <div className="text-sm md:text-lg text-gray-300">
+            Date: {event.eventDate.split("T")[0]} <br />
+            Time: {event.eventTime}
           </div>
-          <div className="">
-            <div className="flex items-center gap-4">
-            <MdLocationPin className="w-auto h-5 text-primarydark "/>
-            <div className="flex flex-col gap-1">
-              
-              <h1 className="text-md md:text-lg font-extrabold">Location</h1>
-              <div className="text-sm md:text-lg">
-                {event.location}
-              </div>
-            </div>
-            
-          </div>
-          </div>
-        </div>
-            
-      </div>
-      <div className="mx-2 mt-5 text-md md:text-xl font-extrabold">
-        Share with friends
-        <div className="mt-10 flex gap-5 mx-10 md:mx-32 ">
-        <button onClick={handleCopyLink}>
-            <FaCopy className="w-auto h-6" />
-          </button>
-
-          <button onClick={handleWhatsAppShare}>
-            <FaWhatsappSquare className="w-auto h-6" />
-          </button>
-
-          <button onClick={handleFacebookShare}>
-            <FaFacebook className="w-auto h-6" />
-          </button>
-
         </div>
       </div>
 
-
+      {/* Location */}
+      <div className="flex items-center gap-4">
+        <MdLocationPin className="w-auto h-5 text-gray-300" />
+        <div className="flex flex-col gap-1">
+          <h1 className="text-md md:text-lg font-extrabold text-orange-400">
+            Location
+          </h1>
+          <div className="text-sm md:text-lg text-gray-300">{event.location}</div>
+        </div>
+      </div>
     </div>
+  </div>
+
+  {/* Share Buttons */}
+  <div className="mx-2 mt-5 text-md md:text-xl font-extrabold text-white">
+    Share with Friends
+    <div className="mt-10 flex gap-5 mx-10 md:mx-32">
+      <button
+        onClick={handleCopyLink}
+        className="text-gray-400 hover:text-orange-500 transition duration-300"
+      >
+        <FaCopy className="w-auto h-6" />
+      </button>
+
+      <button
+        onClick={handleWhatsAppShare}
+        className="text-green-500 hover:text-green-400 transition duration-300"
+      >
+        <FaWhatsappSquare className="w-auto h-6" />
+      </button>
+
+      <button
+        onClick={handleFacebookShare}
+        className="text-blue-500 hover:text-blue-400 transition duration-300"
+      >
+        <FaFacebook className="w-auto h-6" />
+      </button>
+    </div>
+  </div>
+</div>
+
   )
 }

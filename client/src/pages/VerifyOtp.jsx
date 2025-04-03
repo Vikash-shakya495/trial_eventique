@@ -17,9 +17,9 @@ export default function VerifyOtp({ email, setStage }) {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-        <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-96">
-            <h1 className="text-2xl font-bold mb-4 text-center">Verify OTP</h1>
+        <div className="flex items-center justify-center h-screen bg-slate-900 text-white">
+        <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full border border-gray-700">
+            <h1 className="text-2xl font-bold mb-4 text-center text-orange-400">Verify OTP</h1>
             {message && <p className="text-green-500 text-center mb-4">{message}</p>}
             <form onSubmit={handleSubmit} className="flex flex-col">
                 <input
@@ -32,15 +32,16 @@ export default function VerifyOtp({ email, setStage }) {
                 />
                 <button
                     type="submit"
-                    className="bg-blue-600 text-white py-2 rounded hover:bg-blue-500 transition duration-200"
+                    className="bg-blue-700 text-white py-2 rounded hover:bg-blue-500 transition duration-200 shadow-md"
                 >
                     Verify OTP
                 </button>
             </form>
             <p className="text-sm text-center mt-4">
-                Didn't receive the OTP? <span className="text-blue-400 cursor-pointer">Resend OTP</span>
+                Didn't receive the OTP? <span className="text-orange-400 cursor-pointer hover:text-orange-300">Resend OTP</span>
             </p>
         </div>
     </div>
+    
     );
 }

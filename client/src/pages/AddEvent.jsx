@@ -61,57 +61,58 @@ export default function AddEvent() {
   };
 
   return (
-    <div className="mx-auto bg-white p-6 rounded-xl mt-10 border-2 w-full">
-      <h1 className="text-3xl font-bold text-blue-500 mb-5 text-center">Post an Event</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-full">
-        <div className='flex gap-4'>
-          <div className='w-1/2'>
-            <label className="font-semibold text-gray-700">
-              Title:
-              <input type="text" name="title" value={formData.title} onChange={handleChange} required className="block w-full p-2 border rounded-lg bg-gray-100" />
-            </label>
-            <label className="font-semibold text-gray-700">
-              Description:
-              <textarea name="description" value={formData.description} onChange={handleChange} required className="block w-full p-2 border rounded-lg bg-gray-100" />
-            </label>
-            <label className="font-semibold text-gray-700">
-              Organized By:
-              <input type="text" name="organizedBy" value={formData.owner} onChange={handleChange} required className="block w-full p-2 border rounded-lg bg-gray-100" />
-            </label>
-            <label className="font-semibold text-gray-700">
-              Event Date:
-              <input type="date" name="eventDate" value={formData.eventDate} onChange={handleChange} required className="block w-full p-2 border rounded-lg bg-gray-100" />
-            </label>
-          </div>
-          <div className='w-1/2'>
-            <label className="font-semibold text-gray-700">
-              Event Time:
-              <input type="time" name="eventTime" value={formData.eventTime} onChange={handleChange} required className="block w-full p-2 border rounded-lg bg-gray-100" />
-            </label>
-            <label className="font-semibold text-gray-700">
-              Location:
-              <input type="text" name="location" value={formData.location} onChange={handleChange} required className="block w-full p-2 border rounded-lg bg-gray-100" />
-            </label>
-            <label className="font-semibold text-gray-700">
-              Ticket Price:
-              <input type="number" name="ticketPrice" value={formData.ticketPrice} onChange={handleChange} required className="block w-full p-2 border rounded-lg bg-gray-100" />
-            </label>
-            <label className="font-semibold text-gray-700">
-              Image:
-              <input type="file" name="image" onChange={handleImageUpload} accept="image/*" required className="block w-full p-2 border rounded-lg bg-gray-100" />
-            </label>
-          </div>
-        </div>
-        <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded-md transition text-lg">
-          {loading ? "Posting..." : "Submit"}
-        </button>
-        {loading && (
-          <div className="flex justify-center mt-4">
-            <img src='https://cdn.pixabay.com/animation/2022/07/29/03/42/03-42-07-846_512.gif' alt="Loading..." className="w-16 h-16" />
-          </div>
-        )}
-        {successMessage && <p className="text-green-500 text-center font-semibold">{successMessage}</p>}
-      </form>
+    <div className="mx-auto bg-slate-900 p-6 rounded-xl mt-10 border-2 border-gray-700 w-full shadow-lg">
+  <h1 className="text-3xl font-bold text-orange-500 mb-5 text-center">Post an Event</h1>
+  <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-full">
+    <div className='flex gap-4'>
+      <div className='w-1/2'>
+        <label className="font-semibold text-white">
+          Title:
+          <input type="text" name="title" value={formData.title} onChange={handleChange} required className="block w-full p-2 border border-gray-600 rounded-lg bg-gray-800 text-white" />
+        </label>
+        <label className="font-semibold text-white">
+          Description:
+          <textarea name="description" value={formData.description} onChange={handleChange} required className="block w-full p-2 border border-gray-600 rounded-lg bg-gray-800 text-white" />
+        </label>
+        <label className="font-semibold text-white">
+          Organized By:
+          <input type="text" name="organizedBy" value={formData.owner} onChange={handleChange} required className="block w-full p-2 border border-gray-600 rounded-lg bg-gray-800 text-white" />
+        </label>
+        <label className="font-semibold text-white">
+          Event Date:
+          <input type="date" name="eventDate" value={formData.eventDate} onChange={handleChange} required className="block w-full p-2 border border-gray-600 rounded-lg bg-gray-800 text-white" />
+        </label>
+      </div>
+      <div className='w-1/2'>
+        <label className="font-semibold text-white">
+          Event Time:
+          <input type="time" name="eventTime" value={formData.eventTime} onChange={handleChange} required className="block w-full p-2 border border-gray-600 rounded-lg bg-gray-800 text-white" />
+        </label>
+        <label className="font-semibold text-white">
+          Location:
+          <input type="text" name="location" value={formData.location} onChange={handleChange} required className="block w-full p-2 border border-gray-600 rounded-lg bg-gray-800 text-white" />
+        </label>
+        <label className="font-semibold text-white">
+          Ticket Price:
+          <input type="number" name="ticketPrice" value={formData.ticketPrice} onChange={handleChange} required className="block w-full p-2 border border-gray-600 rounded-lg bg-gray-800 text-white" />
+        </label>
+        <label className="font-semibold text-white">
+          Image:
+          <input type="file" name="image" onChange={handleImageUpload} accept="image/*" required className="block w-full p-2 border border-gray-600 rounded-lg bg-gray-800 text-white" />
+        </label>
+      </div>
     </div>
+    <button type="submit" className="bg-blue-600 hover:bg-orange-500 text-white font-semibold py-2 rounded-md transition text-lg">
+      {loading ? "Posting..." : "Submit"}
+    </button>
+    {loading && (
+      <div className="flex justify-center mt-4">
+        <img src='https://cdn.pixabay.com/animation/2022/07/29/03/42/03-42-07-846_512.gif' alt="Loading..." className="w-16 h-16" />
+      </div>
+    )}
+    {successMessage && <p className="text-green-400 text-center font-semibold">{successMessage}</p>}
+  </form>
+</div>
+
   );
 }

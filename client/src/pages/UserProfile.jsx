@@ -33,45 +33,46 @@ function UserProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <h1 className="text-3xl font-bold text-blue-500 text-center mb-4">User  Profile</h1>
-
-      <div className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
-        <h2 className="text-xl font-semibold mb-2">{user?.name}</h2>
-        <p className="text-gray-700">Email: {user?.email}</p>
-
-        <h3 className="text-lg font-semibold mt-4">Select an Organizer to Chat</h3>
-        {loading ? (
-          <p className="text-gray-500">Loading organizers...</p>
-        ) : error ? (
-          <p className="text-red-500">{error}</p>
-        ) : (
-          <select
-            className="border p-2 w-full rounded mt-2"
-            onChange={handleOrganizerChange}
-            value={selectedOrganizer?.email || ""}
-          >
-            <option value="">-- Select Organizer --</option>
-            {organizers.map((org) => (
-              <option key={org.email} value={org.email}>
-                {org.name}
-              </option>
-            ))}
-          </select>
-        )}
-
-        {selectedOrganizer && (
-          <div className="mt-6">
-            <Chat
-              userEmail={user.email}
-              userName={user.name}
-              organizerEmail={selectedOrganizer.email}
-              organizerName={selectedOrganizer.name}
-            />
-          </div>
-        )}
-      </div>
+    <div className="min-h-screen bg-slate-900 p-6">
+    <h1 className="text-3xl font-bold text-orange-500 text-center mb-4">User Profile</h1>
+  
+    <div className="max-w-4xl mx-auto bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700">
+      <h2 className="text-xl font-semibold text-white mb-2">{user?.name}</h2>
+      <p className="text-gray-300">Email: {user?.email}</p>
+  
+      <h3 className="text-lg font-semibold text-orange-400 mt-4">Select an Organizer to Chat</h3>
+      {loading ? (
+        <p className="text-gray-400">Loading organizers...</p>
+      ) : error ? (
+        <p className="text-red-500">{error}</p>
+      ) : (
+        <select
+          className="border border-gray-600 p-2 w-full rounded mt-2 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500"
+          onChange={handleOrganizerChange}
+          value={selectedOrganizer?.email || ""}
+        >
+          <option value="" className="text-gray-400">-- Select Organizer --</option>
+          {organizers.map((org) => (
+            <option key={org.email} value={org.email} className="text-white bg-gray-800">
+              {org.name}
+            </option>
+          ))}
+        </select>
+      )}
+  
+      {selectedOrganizer && (
+        <div className="mt-6">
+          <Chat
+            userEmail={user.email}
+            userName={user.name}
+            organizerEmail={selectedOrganizer.email}
+            organizerName={selectedOrganizer.name}
+          />
+        </div>
+      )}
     </div>
+  </div>
+  
   );
 }
 

@@ -31,36 +31,47 @@ export default function CalendarView() {
   ));
 
   return (
-    <div className="p-4 md:mx-16 bg-gray-100 rounded-lg shadow-lg">
-      <div className="rounded p-2 bg-white shadow-md">
+    <div className="p-4 md:mx-16 bg-slate-900 rounded-lg shadow-lg">
+      <div className="rounded p-2 bg-gray-800 shadow-md">
+        {/* Month Navigation */}
         <div className="flex items-center mb-4 justify-center gap-6 ">
-          <button className="text-blue-600 hover:text-blue-800" onClick={() => setCurrentMonth((prevMonth) => addMonths(prevMonth, -1))}>
+          <button
+            className="text-orange-500 hover:text-orange-400 transition duration-300"
+            onClick={() => setCurrentMonth((prevMonth) => addMonths(prevMonth, -1))}
+          >
             <BsCaretLeftFill className="w-auto h-5" />
           </button>
-          <span className="text-xl font-semibold">{format(currentMonth, "MMMM yyyy")}</span>
-          <button className="text-blue-600 hover:text-blue-800" onClick={() => setCurrentMonth((prevMonth) => addMonths(prevMonth, 1))}>
+          <span className="text-xl font-semibold text-white">{format(currentMonth, "MMMM yyyy")}</span>
+          <button
+            className="text-orange-500 hover:text-orange-400 transition duration-300"
+            onClick={() => setCurrentMonth((prevMonth) => addMonths(prevMonth, 1))}
+          >
             <BsFillCaretRightFill className="w-auto h-5" />
           </button>
         </div>
-        <div className="grid grid-cols-7 text-center bg-gray-200 rounded-t-lg">
+
+        {/* Week Days Header */}
+        <div className="grid grid-cols-7 text-center bg-gray-700 rounded-t-lg">
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-            <div key={day} className="p-2 font-semibold text-gray-700">{day}</div>
+            <div key={day} className="p-2 font-semibold text-orange-400">{day}</div>
           ))}
         </div>
-        <div className="grid grid-cols-7">
-          {
-            emptyCells.concat(daysInMonth.map((date) => (
-              <div key={date.toISOString()} className="p-2 relative top-0 pb-20 sm:pb-24 flex flex-col items-start justify-start">
-                <div className="font-bold text-gray-800">{format(date, "dd")}</div>
+
+        {/* Calendar Days */}
+        <div className="grid grid-cols-7 bg-gray-900 rounded-b-lg">
+          {emptyCells.concat(
+            daysInMonth.map((date) => (
+              <div key={date.toISOString()} className="p-2 relative pb-20 sm:pb-24 flex flex-col items-start justify-start border border-gray-700">
+                <div className="font-bold text-gray-300">{format(date, "dd")}</div>
                 <div className="absolute top-8">
                   {events
-                    .filter(event =>
+                    .filter((event) =>
                       format(new Date(event.eventDate), "yyyy-MM-dd") === format(date, "yyyy-MM-dd")
                     )
-                    .map(event => (
+                    .map((event) => (
                       <div key={event._id} className="mt-0 flex md:mt-2">
                         <Link to={`/event/${event._id}`}>
-                          <div className="text-white bg-blue-500 rounded p-1 font-bold text-xs md:text-base md:p-2 transition-transform transform hover:scale-105 hover:bg-blue-600">
+                          <div className="text-white bg-gradient-to-r from-blue-600 to-orange-500 rounded p-1 font-bold text-xs md:text-base md:p-2 transition-transform transform hover:scale-105 hover:from-blue-700 hover:to-orange-600">
                             {event.title.toUpperCase()}
                           </div>
                         </Link>
@@ -68,10 +79,11 @@ export default function CalendarView() {
                     ))}
                 </div>
               </div>
-            )))
-          }
+            ))
+          )}
         </div>
       </div>
     </div>
+
   );
 }

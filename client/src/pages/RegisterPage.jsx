@@ -2,6 +2,7 @@ import { Link, Navigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
 import logo from '../assets/logo1.png'
+import signuppic from '../assets/signuppic.svg'
 
 export default function RegisterPage() {
   const [name, setName] = useState('');
@@ -40,71 +41,55 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex w-full h-full lg:-ml-24 px-10 py-10 justify-between place-items-center mt-12">
-      <div className="hidden lg:flex flex-col right-box ">
-        <div className="flex flex-col gap-3">
-          <div className="text-3xl font-black">Welcome to</div>
-          <div>
-            <img src={logo} alt="" className="w-48" />
-          </div>
-        </div>
-        <div className="ml-48 w-80 mt-6">
-          <img src="../src/assets/signuppic.svg" alt="" className='w-full' />
+    <div className="flex w-full  h-screen px-10 py-10 justify-between items-center bg-slate-900 text-white">
+    {/* Left Section */}
+    <div className="hidden lg:flex flex-col">
+      <div className="flex flex-col gap-3">
+        <div className="text-3xl font-black text-orange-500">Welcome to</div>
+        <div>
+          <img src={logo} alt="logo" className="w-48" />
         </div>
       </div>
-      <div className="bg-white w-full sm:w-full md:w-1/2 lg:w-1/3 px-7 py-7 rounded-xl justify-center align-middle ">
-        <form className="flex flex-col w-auto items-center" onSubmit={registerUser }>
-          <h1 className='px-3 font-extrabold mb-5 text-primarydark text-2xl'>Sign Up</h1>
-
-          <div className="input">
-            <input type="text" placeholder="Name" className="input-et" value={name} onChange={ev => setName(ev.target.value)} />
-          </div>
-
-          <div className="input">
-            <input type="email" placeholder="Email" className="input-et" value={email} onChange={ev => setEmail(ev.target.value)} />
-          </div>
-
-          <div className="input">
-            <input type="password" placeholder="Password" className="input-et" value={password} onChange={ev => setPassword(ev.target.value)} />
-          </div>
-
-          <div className="input">
-            <input type="password" placeholder="Confirm password" className="input-et" value={confirmPassword} onChange={ev => setConfirmPassword(ev.target.value)} />
-          </div>
-
-          {/* Role Selection */}
-          <div className="input">
-            <select value={role} onChange={ev => setRole(ev.target.value)} className="input-et">
-              <option value="user">User </option>
-              <option value="organizer">Organizer</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-
-          <div className="w-full py-4">
-            <button type="submit" className="primary w-full">Create Account</button>
-          </div>
-
-          <div className="container2">
-            <div className="w-full h-full p-1">
-              <Link to={'/login'}>
-                <button type="button" className="text-black cursor-pointer rounded w-full h-full font-bold">Sign In</button>
-              </Link>
-            </div>
-            <div className="w-full h-full p-1">
-              <Link to={'/register'}>
-                <button type="button" className="text-white cursor-pointer rounded w-full h-full bg-primary font-bold">Sign Up</button>
-              </Link>
-            </div>
-          </div>
-
-          <Link to={'/'}>
-            <button className="secondary">
-              Back
-            </button>
-          </Link>
-        </form >
+      <div className="ml-48 w-80 mt-6">
+        <img src={signuppic} alt="signup" className="w-full rounded-lg shadow-lg" />
       </div>
     </div>
+    
+    {/* Right Section - Form */}
+    <div className="bg-gray-800 w-full sm:w-full md:w-1/2 lg:w-1/3 px-7 py-7 rounded-xl shadow-lg">
+      <form className="flex flex-col w-auto items-center" onSubmit={registerUser}>
+        <h1 className='px-3 font-extrabold mb-5 text-blue-400 text-2xl'>Sign Up</h1>
+
+        <input type="text" placeholder="Name" className="input-et p-4 m-1 rounded-2xl bg-gray-700 text-white border border-gray-600" value={name} onChange={(e) => setName(e.target.value)} />
+        <input type="email" placeholder="Email" className="input-et p-4 m-1 rounded-2xl bg-gray-700 text-white border border-gray-600" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <input type="password" placeholder="Password" className="input-et p-4 m-1 rounded-2xl bg-gray-700 text-white border border-gray-600" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <input type="password" placeholder="Confirm password" className="input-et p-4 m-1 rounded-2xl bg-gray-700 text-white border border-gray-600" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+
+        {/* Role Selection */}
+        <select value={role} onChange={(e) => setRole(e.target.value)} className="input-et p-2 m-1 bg-gray-700 text-white border border-gray-600">
+          <option value="user">User</option>
+          <option value="organizer">Organizer</option>
+          <option value="admin">Admin</option>
+        </select>
+
+        <div className="w-full py-4">
+          <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 w-full rounded">Create Account</button>
+        </div>
+
+        <div className="flex gap-2 w-full">
+          <Link to={'/login'} className="w-1/2">
+            <button type="button" className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 w-full rounded">Sign In</button>
+          </Link>
+          <Link to={'/register'} className="w-1/2">
+            <button type="button" className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 w-full rounded">Sign Up</button>
+          </Link>
+        </div>
+        
+        <Link to={'/'} className="mt-4">
+          <button className="bg-black hover:bg-gray-900 text-white font-bold py-2 px-4 rounded">Back</button>
+        </Link>
+      </form>
+    </div>
+  </div>
   );
 }

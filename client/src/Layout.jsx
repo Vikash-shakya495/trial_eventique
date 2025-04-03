@@ -4,7 +4,7 @@ import {Outlet} from "react-router-dom"
 
 export default function Layout() {
   return (
-    <div className='flex flex-col min-h-screen overflow-x-hidden'> 
+    <div className='flex flex-col min-h-screen overflow-x-hidden bg-slate-950'> 
       <Header />
       <Outlet />
       <Footer />

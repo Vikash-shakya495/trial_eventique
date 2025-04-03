@@ -21,17 +21,17 @@ export default function Features() {
     ];
 
     return (
-        <div className="flex flex-col items-center justify-center p-6">
+        <div className="flex flex-col items-center justify-center p-6 bg-slate-900">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-16 max-w-5xl">
                 {features.map((feature, index) => (
                     <div
                         key={index}
-                        className={`p-6 rounded-2xl shadow-lg ${feature.gradient}`}
+                        className={`p-6 rounded-2xl shadow-lg transition-all duration-300 border border-gray-700 bg-gray-800 hover:shadow-xl hover:scale-105`}
                     >
-                        <h3 className="text-xl font-bold text-gray-900 mb-2 capitalize">
+                        <h3 className="text-xl font-bold text-white mb-2 capitalize">
                             {feature.title}
                         </h3>
-                        <p className="text-gray-700 text-sm">{feature.description}</p>
+                        <p className="text-gray-300 text-sm">{feature.description}</p>
                     </div>
                 ))}
             </div>
