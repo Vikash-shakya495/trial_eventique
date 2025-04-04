@@ -25,8 +25,10 @@ export default function Header() {
     axios.get("/profile").then((response) => {
       setUserRole(response.data);
       console.log(response.data);
+      setIsLoading(false); 
     }).catch((err) => {
       console.error("Error in fetching user profile", err);
+      setIsLoading(false); 
     })
 
 
@@ -58,7 +60,7 @@ export default function Header() {
 
       {/* Role-Based Navigation */}
       {/* Role-Based Navigation */}
-      {user && isLoading ? (
+      {isLoading ? (
         <span className="text-gray-400">Loading...</span> // Show loading text
       ) : userRole?.role === 'user' ? (
         <Link to="/dashboard">
@@ -72,7 +74,9 @@ export default function Header() {
         <Link to="/admin/dashboard">
           <button className="px-4 py-2 bg-red-600 hover:bg-orange-500 text-white rounded-md transition-all">Admin Dashboard</button>
         </Link>
-      ) : null}
+      ) : (
+        <span className="text-gray-400">Role not found</span>
+      )}
 
       {/* Navigation Icons */}
       <div className="hidden md:flex gap-6 text-sm">
