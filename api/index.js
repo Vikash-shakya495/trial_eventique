@@ -39,14 +39,22 @@ const io = socketIo(server, {
    }
 });
 
-app.use(
-   cors({
-     origin: process.env.VITE_API_BASE_URL, 
-     methods: ["GET", "POST", "PUT", "DELETE"],
-     credentials: true,
-   })  
- );  
-
+// app.use(cors());
+const allowedOrigins = [
+   "https://eventique-004-event-booking-system.vercel.app",
+   "https://trial-eventique-001-event-booking-system.vercel.app"
+ ];
+ 
+ app.use(cors({
+   origin: function (origin, callback) {
+     if (!origin || allowedOrigins.includes(origin)) {
+       callback(null, true);
+     } else {
+       callback(new Error("Not allowed by CORS"));
+     }
+   },
+   credentials: true
+ }));
 app.use(cookieParser()); 
 
 
