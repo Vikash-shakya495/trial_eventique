@@ -32,7 +32,7 @@ const jwtSecret = "bsbsfbrnsftentwnnwnwn";
 // Use CORS middleware for Express
 const io = socketIo(server, {
    cors: {
-      origin: [process.env.VITE_API_BASE_URL],
+      origin: process.env.VITE_API_BASE_URL,
       methods: ["GET", "POST"],
       credentials: true
    }
@@ -40,7 +40,7 @@ const io = socketIo(server, {
 
 app.use(
    cors({
-     origin: [process.env.VITE_API_BASE_URL], 
+     origin: process.env.VITE_API_BASE_URL, 
      methods: ["GET", "POST", "PUT", "DELETE"],
      credentials: true,
    })  
