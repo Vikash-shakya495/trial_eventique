@@ -8,7 +8,7 @@ import useUserStore from "../store";
 
 export default function Header() {
   const user = useUserStore((state) => state.user);
-  const setUser  = useUserStore((state) => state.setUser );
+  const setUser = useUserStore((state) => state.setUser);
   const [userRole, setUserRole] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -30,7 +30,7 @@ export default function Header() {
   // Logout Function
   async function logout() {
     await axios.post('/logout');
-    setUser (null);
+    setUser(null);
     navigate('/');
   }
 
@@ -71,14 +71,14 @@ export default function Header() {
       <div className="hidden lg:flex gap-6 text-sm">
         <Link to="/wallet" className="flex flex-col items-center py-1 px-3 rounded-md hover:text-orange-400 transition">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path d="M21 12a2.25 2.25..." />
+            <path d="M21 12a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 12V6.75A2.25 2.25 0 016.75 4.5h12.5A2.25 2.25 0 0121 6.75v5.25z" />
           </svg>
           <div>Wallet</div>
         </Link>
 
         <Link to="/calendar" className="flex flex-col items-center py-1 px-3 rounded-md hover:text-orange-400 transition">
           <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M6.75 2.25A.75..." />
+            <path d="M6.75 2.25A.75.75 0 006 3v1.5H3.75A.75.75 0 003 6v12a.75.75 0 00.75.75H6v1.5a.75.75 0 001.5 0V18h9v1.5a.75.75 0 001.5 0V18h2.25a.75.75 0 00.75-.75V6a.75.75 0 00-.75-.75H18V3a.75.75 0 00-.75-.75h-1.5a.75.75 0 00-.75.75v1.5H9V3a.75.75 0 00-.75-.75H6.75z" />
           </svg>
           <div>Calendar</div>
         </Link>
@@ -101,7 +101,7 @@ export default function Header() {
 
       {/* Mobile Menu Dropdown */}
       {isMenuOpen && (
-        <div className="lg:hidden absolute z-10 right-4 sm:right-36 top-0 mt-20 w-48 bg-slate-800 text-white rounded-lg shadow-lg">
+        <div className="lg:hidden absolute z-50 right-4 sm:right-36 top-0 mt-20 w-48 bg-slate-800 text-white rounded-lg shadow-lg">
           <nav className="flex flex-col p-4">
             {userRole === 'organizer' && <Link to="/createEvent" className="hover:bg-blue-600 p-2 rounded-md">Create Event</Link>}
             {userRole === 'user' && <Link to="/dashboard" className="hover:bg-blue-600 p-2 rounded-md">Dashboard</Link>}
