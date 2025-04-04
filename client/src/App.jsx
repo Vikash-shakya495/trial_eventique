@@ -20,6 +20,7 @@ import AdminDashboard from './pages/AdminDashboard'
 import OrganizerDashboard from './pages/OrganizerDashboard'
 import UserProfile from './pages/UserProfile'
 import ProtectedRoute from './ProtectedRoute';
+import NotFoundPage from './pages/NotFoundPage';
 
 // axios.defaults.baseURL = 'http://localhost:4000/'
 axios.defaults.baseURL = import.meta.env.VITE_API_URL;
@@ -96,6 +97,7 @@ function App() {
       <Route path='/forgotpassword' element={<ForgotPassword />} />
       <Route path='/reset-password/:token' element={<ResetPassword />} />
       <Route path='/event/:id/ordersummary/paymentsummary' element={<PaymentSummary />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   )
 }
