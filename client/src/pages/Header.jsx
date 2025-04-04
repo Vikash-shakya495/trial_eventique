@@ -51,73 +51,77 @@ export default function Header() {
 
   return (
     <header className="bg-slate-900 text-white flex py-3 px-6 sm:px-10 justify-between items-center shadow-lg">
-    <Link to="/" className="flex items-center">
-      <img src={logo} alt="Logo" className="w-24 h-20 " />
-    </Link>
-  
+  <Link to="/" className="flex items-center">
+    <img src={logo} alt="Logo" className="w-24 h-20" />
+  </Link>
+
+  {/* Large Screen Navigation */}
+  <div className="hidden md:flex items-center gap-6">
     {/* Role-Based Navigation */}
     {user && userRole?.role === 'user' && (
-      <Link to="/dashboard">
-        <button className="px-4 py-2 bg-blue-600 hidden sm:block  hover:bg-orange-500 text-white rounded-md transition-all">Dashboard</button>
-      </Link>
+      <Link to="/dashboard" className="px-4 py-2 bg-blue-600 hover:bg-orange-500 text-white rounded-md transition-all">Dashboard</Link>
     )}
     {user && userRole?.role === 'organizer' && (
-      <Link to="/organizer/dashboard">
-        <button className="px-4 py-2 bg-blue-600 hidden sm:block  hover:bg-orange-500 text-white rounded-md transition-all">Organizer Dashboard</button>
-      </Link>
+      <Link to="/organizer/dashboard" className="px-4 py-2 bg-blue-600 hover:bg-orange-500 text-white rounded-md transition-all">Organizer Dashboard</Link>
     )}
     {user && userRole?.role === 'admin' && (
-      <Link to="/admin/dashboard">
-        <button className="px-4 py-2 bg-red-600  hidden sm:block hover:bg-orange-500 text-white rounded-md transition-all">Admin Dashboard</button>
-      </Link>
+      <Link to="/admin/dashboard" className="px-4 py-2 bg-red-600 hover:bg-orange-500 text-white rounded-md transition-all">Admin Dashboard</Link>
     )}
-  
+
     {/* Navigation Icons */}
-    <div className="hidden lg:flex gap-6 text-sm">
-      <Link to="/wallet" className="flex flex-col items-center py-1 px-3 rounded-md hover:text-orange-400 transition">
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path d="M21 12a2.25 2.25..." />
-        </svg>
-        <div>Wallet</div>
-      </Link>
-      
-      <Link to="/calendar" className="flex flex-col items-center py-1 px-3 rounded-md hover:text-orange-400 transition">
-        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M6.75 2.25A.75..." />
-        </svg>
-        <div>Calendar</div>
-      </Link>
-    </div>
-  
+    <Link to="/wallet" className="flex flex-col items-center py-1 px-3 rounded-md hover:text-orange-400 transition">
+      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path d="M21 12a2.25 2.25..." />
+      </svg>
+      <div>Wallet</div>
+    </Link>
+    
+    <Link to="/calendar" className="flex flex-col items-center py-1 px-3 rounded-md hover:text-orange-400 transition">
+      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M6.75 2.25A.75..." />
+      </svg>
+      <div>Calendar</div>
+    </Link>
+
     {/* User Info & Logout */}
-    {!!user ? (
-      <div className="flex items-center gap-4 ">
+    {!!user && (
+      <div className="flex items-center gap-4">
         <Link to="/useraccount" className="text-white font-semibold">{user.name.toUpperCase()}</Link>
-        <BsFillCaretDownFill className="w-5 h-5 cursor-pointer hover:rotate-180 transition-all" onClick={() => setisMenuOpen(!isMenuOpen)} />
-        <button onClick={logout} className="sm:flex hidden px-3 py-2 bg-red-600 hover:bg-orange-500 text-white rounded-md items-center gap-2">
-          Log out <RxExit />
+        <button onClick={logout} className="px-3 py-2 bg-red-600 hover:bg-orange-500 text-white rounded-md">
+          Log out
         </button>
       </div>
-    ) : (
-      <Link to="/login">
-        <button className="px-4 py-2 bg-blue-600 hover:bg-orange-500 text-white rounded-md transition-all">Sign in</button>
-      </Link>
     )}
-  
-    {/* Mobile Menu Dropdown */}
-    {isMenuOpen && (
-      <div className="lg:hidden absolute z-10 right-4 sm:right-36 top-0 mt-20 w-48 bg-slate-800 text-white rounded-lg shadow-lg">
-        <nav className="flex flex-col p-4">
-          {userRole?.role === 'organizer' && <Link to="/createEvent" className="hover:bg-blue-600 p-2 rounded-md">Create Event</Link>}
-          {userRole?.role === 'user' && <Link to="/dashboard" className="hover:bg-blue-600 p-2 rounded-md">Dashboard</Link>}
-          {userRole?.role === 'admin' && <Link to="/admin/dashboard" className="hover:bg-blue-600 p-2 rounded-md">Admin Dashboard</Link>}
-          <Link to="/wallet" className="hover:bg-blue-600 p-2 rounded-md">Wallet</Link>
-          <Link to="/calendar" className="hover:bg-blue-600 p-2 rounded-md">Calendar</Link>
-          <button onClick={logout} className="hover:bg-red-600 p-2 rounded-md">Log out</button>
-        </nav>
+  </div>
+
+  {/* Mobile Screen - Show Only Name with Dropdown */}
+  <div className="md:hidden flex items-center gap-4">
+    {!!user && (
+      <div className="flex items-center">
+        <Link to="/useraccount" className="text-white font-semibold">{user.name.toUpperCase()}</Link>
+        <BsFillCaretDownFill
+          className="w-5 h-5 cursor-pointer hover:rotate-180 transition-all"
+          onClick={() => setisMenuOpen(!isMenuOpen)}
+        />
       </div>
     )}
-  </header>
+  </div>
+
+  {/* Mobile Menu Dropdown */}
+  {isMenuOpen && (
+    <div className="md:hidden absolute z-10 right-4 top-14 w-48 bg-slate-800 text-white rounded-lg shadow-lg">
+      <nav className="flex flex-col p-4">
+        {userRole?.role === 'user' && <Link to="/dashboard" className="hover:bg-blue-600 p-2 rounded-md">Dashboard</Link>}
+        {userRole?.role === 'organizer' && <Link to="/organizer/dashboard" className="hover:bg-blue-600 p-2 rounded-md">Organizer Dashboard</Link>}
+        {userRole?.role === 'admin' && <Link to="/admin/dashboard" className="hover:bg-red-600 p-2 rounded-md">Admin Dashboard</Link>}
+        <Link to="/wallet" className="hover:bg-blue-600 p-2 rounded-md">Wallet</Link>
+        <Link to="/calendar" className="hover:bg-blue-600 p-2 rounded-md">Calendar</Link>
+        <button onClick={logout} className="hover:bg-red-600 p-2 rounded-md">Log out</button>
+      </nav>
+    </div>
+  )}
+</header>
+
   
   )
 }
