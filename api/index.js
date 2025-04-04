@@ -30,23 +30,23 @@ const bcryptSalt = bcrypt.genSaltSync(10);
 const jwtSecret = "bsbsfbrnsftentwnnwnwn";
 
 // Use CORS middleware for Express
-app.use(
-   cors({
-     origin: ["http://localhost:5173",process.env.VITE_API_BASE_URL],
-     methods: ["GET", "POST", "PUT", "DELETE"],
-     credentials: true,
-   })
- );
-
-app.use(cookieParser());
 const io = socketIo(server, {
    cors: {
-      origin: ["http://localhost:5173",process.env.VITE_API_BASE_URL],
+      origin: [process.env.VITE_API_BASE_URL],
       methods: ["GET", "POST"],
       credentials: true
    }
 });
 
+app.use(
+   cors({
+     origin: [process.env.VITE_API_BASE_URL], 
+     methods: ["GET", "POST", "PUT", "DELETE"],
+     credentials: true,
+   })  
+ );  
+
+app.use(cookieParser()); 
 
 
 mongoose.connect(process.env.MONGO_URL, {

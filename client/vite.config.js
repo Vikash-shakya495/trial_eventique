@@ -8,6 +8,16 @@ export default defineConfig({
   define: {
     'process.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL),
   },
+  server: {
+    proxy: {
+      "/socket.io": {
+        target: "https://trial-eventique-002-event-booking-system.onrender.com",
+        changeOrigin: true,
+        secure: false,
+        ws: true
+      }
+    }
+  }
 })
 
 

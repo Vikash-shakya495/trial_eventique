@@ -4,7 +4,8 @@ import axios from 'axios';
 
 
 const socket = io(import.meta.env.VITE_API_URL, {
-    withCredentials: true
+    withCredentials: true,
+    transports: ['websocket', 'polling']
 });// Ensure single socket connection
 
 // const socket = io("http://localhost:4000/", {
