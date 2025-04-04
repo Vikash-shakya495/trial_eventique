@@ -11,7 +11,7 @@ export default function Header() {
   // const {user,setUser} = useContext(UserContext);
   const user = useUserStore((state) => state.user)
   const setUser = useUserStore((state) => state.setUser)
-  const [userRole, setUserRole] = useState();
+  const [userRole, setUserRole] = useState({role: "user"});
   const [isMenuOpen, setisMenuOpen] = useState(false);
   const [events, setEvents] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -23,7 +23,7 @@ export default function Header() {
 
     axios.get("/profile").then((response) => {
       setUserRole(response.data);
-      // console.log(response.data);
+      console.log(response.data);
     }).catch((err) => {
       console.error("Error in fetching user profile", err);
     })
@@ -58,17 +58,17 @@ export default function Header() {
     {/* Role-Based Navigation */}
     {user && userRole?.role === 'user' && (
       <Link to="/dashboard">
-        <button className="px-4 py-2 bg-blue-600 hidden md:block  hover:bg-orange-500 text-white rounded-md transition-all">Dashboard</button>
+        <button className="px-4 py-2 bg-blue-600 block  hover:bg-orange-500 text-white rounded-md transition-all">Dashboard</button>
       </Link>
     )}
     {user && userRole?.role === 'organizer' && (
       <Link to="/organizer/dashboard">
-        <button className="px-4 py-2 bg-blue-600 hidden md:block  hover:bg-orange-500 text-white rounded-md transition-all">Organizer Dashboard</button>
+        <button className="px-4 py-2 bg-blue-600 block  hover:bg-orange-500 text-white rounded-md transition-all">Organizer Dashboard</button>
       </Link>
     )}
     {user && userRole?.role === 'admin' && (
       <Link to="/admin/dashboard">
-        <button className="px-4 py-2 bg-red-600  hidden md:block hover:bg-orange-500 text-white rounded-md transition-all">Admin Dashboard</button>
+        <button className="px-4 py-2 bg-red-600  block hover:bg-orange-500 text-white rounded-md transition-all">Admin Dashboard</button>
       </Link>
     )}
   
