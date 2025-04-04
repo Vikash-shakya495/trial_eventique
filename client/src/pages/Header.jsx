@@ -12,6 +12,7 @@ export default function Header() {
   const user = useUserStore((state) => state.user)
   const setUser = useUserStore((state) => state.setUser)
   const [userRole, setUserRole] = useState(null);
+  const [isLoading, setIsLoading] = useState(true); // Added loading state
   const [isMenuOpen, setisMenuOpen] = useState(false);
   const [events, setEvents] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -56,21 +57,22 @@ export default function Header() {
       </Link>
 
       {/* Role-Based Navigation */}
-      {user && userRole && userRole.role === 'user' && (
+      {/* Role-Based Navigation */}
+      {user && isLoading ? (
+        <span className="text-gray-400">Loading...</span> // Show loading text
+      ) : userRole?.role === 'user' ? (
         <Link to="/dashboard">
           <button className="px-4 py-2 bg-blue-600 hover:bg-orange-500 text-white rounded-md transition-all">Dashboard</button>
         </Link>
-      )}
-      {user && userRole && userRole.role === 'organizer' && (
+      ) : userRole?.role === 'organizer' ? (
         <Link to="/organizer/dashboard">
           <button className="px-4 py-2 bg-blue-600 hover:bg-orange-500 text-white rounded-md transition-all">Organizer Dashboard</button>
         </Link>
-      )}
-      {user && userRole && userRole.role === 'admin' && (
+      ) : userRole?.role === 'admin' ? (
         <Link to="/admin/dashboard">
           <button className="px-4 py-2 bg-red-600 hover:bg-orange-500 text-white rounded-md transition-all">Admin Dashboard</button>
         </Link>
-      )}
+      ) : null}
 
       {/* Navigation Icons */}
       <div className="hidden md:flex gap-6 text-sm">
@@ -91,8 +93,8 @@ export default function Header() {
 
       {/* User Info & Logout */}
       {!!user ? (
-        <div className="flex items-center gap-4 ">
-          <Link to="/useraccount" className="text-white font-semibold">{user.name.toUpperCase()}</Link>
+        <div className="flex items-center gap-4">
+          <p className="text-white font-semibold">{user.name.toUpperCase()}</p>
           <BsFillCaretDownFill className="w-5 h-5 cursor-pointer hover:rotate-180 transition-all" onClick={() => setisMenuOpen(!isMenuOpen)} />
           <button onClick={logout} className="sm:flex hidden px-3 py-2 bg-red-600 hover:bg-orange-500 text-white rounded-md items-center gap-2">
             Log out <RxExit />
