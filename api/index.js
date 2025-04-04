@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+console.log("VITE_API_BASE_URL:", process.env.VITE_API_BASE_URL);
 const punycode = require('punycode/');
 const mongoose = require("mongoose");
 const UserModel = require("./models/User");
@@ -52,7 +53,7 @@ app.use(cookieParser());
 mongoose.connect(process.env.MONGO_URL, {
    useNewUrlParser: true,
    useUnifiedTopology: true,
-   authSource: "admin"  // Yeh line add karein
+   // authSource: "admin"  // Yeh line add karein
 }).then(() => {
    console.log("Connected to MongoDB");
 }).catch((Err) => {
