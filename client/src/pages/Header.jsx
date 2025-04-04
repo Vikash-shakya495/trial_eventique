@@ -58,22 +58,22 @@ export default function Header() {
     {/* Role-Based Navigation */}
     {user && userRole?.role === 'user' && (
       <Link to="/dashboard">
-        <button className="px-4 py-2 bg-blue-600 hidden sm:block  hover:bg-orange-500 text-white rounded-md transition-all">Dashboard</button>
+        <button className="px-4 py-2 bg-blue-600 hidden md:block  hover:bg-orange-500 text-white rounded-md transition-all">Dashboard</button>
       </Link>
     )}
     {user && userRole?.role === 'organizer' && (
       <Link to="/organizer/dashboard">
-        <button className="px-4 py-2 bg-blue-600 hidden sm:block  hover:bg-orange-500 text-white rounded-md transition-all">Organizer Dashboard</button>
+        <button className="px-4 py-2 bg-blue-600 hidden md:block  hover:bg-orange-500 text-white rounded-md transition-all">Organizer Dashboard</button>
       </Link>
     )}
     {user && userRole?.role === 'admin' && (
       <Link to="/admin/dashboard">
-        <button className="px-4 py-2 bg-red-600  hidden sm:block hover:bg-orange-500 text-white rounded-md transition-all">Admin Dashboard</button>
+        <button className="px-4 py-2 bg-red-600  hidden md:block hover:bg-orange-500 text-white rounded-md transition-all">Admin Dashboard</button>
       </Link>
     )}
   
     {/* Navigation Icons */}
-    <div className="hidden lg:flex gap-6 text-sm">
+    <div className="hidden md:flex gap-6 text-sm">
       <Link to="/wallet" className="flex flex-col items-center py-1 px-3 rounded-md hover:text-orange-400 transition">
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path d="M21 12a2.25 2.25..." />
