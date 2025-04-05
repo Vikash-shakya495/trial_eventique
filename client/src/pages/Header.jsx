@@ -18,7 +18,7 @@ export default function Header() {
       const token = localStorage.getItem('token'); // Retrieve token from local storage
       if (!token) {
         console.error("No token found");
-        navigate('/login'); // Redirect to login if no token
+        // navigate('/login'); // Redirect to login if no token
         return;
       }
 
