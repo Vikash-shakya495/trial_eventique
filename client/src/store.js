@@ -18,17 +18,29 @@ const useUserStore = create((set) => ({
     }
   },
 
+  // Clear user data
+  clearUser:  () => set({ user: null }),
+
   // Set ticket quantity
   setTicketQuantity: (quantity) => set({ ticketQuantity: quantity }),
 
   // Check if the user is an admin
-  isAdmin: () => set((state) => state.user?.role === 'admin'),
+  isAdmin: () => {
+    const state = get(); // Get the current state
+    return state.user?.role === 'admin';
+  },
 
   // Check if the user is an organizer
-  isOrganizer: () => set((state) => state.user?.role === 'organizer'),
+  isOrganizer: () => {
+    const state = get(); // Get the current state
+    return state.user?.role === 'organizer';
+  },
 
   // Check if the user is a regular user
-  isUser:  () => set((state) => state.user?.role === 'user'),
+  isUser:  () => {
+    const state = get(); // Get the current state
+    return state.user?.role === 'user';
+  },
 }));
 
 export default useUserStore;

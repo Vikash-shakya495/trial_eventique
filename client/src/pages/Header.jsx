@@ -12,18 +12,16 @@ export default function Header() {
   const [userRole, setUserRole] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
-
-  // setUserRole(user); // Assuming response.data has a 'role' property
-  // console.log("Good role: ", userRole)
-  // Fetch user role from the server
+  // // Fetch user role from the server
   useEffect(() => {
     const fetchUserRole = async () => {
-      if (user) {
-        const token = user.token || localStorage.getItem('authToken'); // Retrieve token from user object or local storage
-        if (!token) {
-          console.error("No token found");
-          return;
-        }
+      const token = localStorage.getItem('token'); // Retrieve token from local storage
+      if (!token) {
+        console.error("No token found");
+        navigate('/login'); // Redirect to login if no token
+        return;
+      }
+
 
         try {
           const response = await axios.get("/profile", {
@@ -46,9 +44,7 @@ export default function Header() {
             navigate('/login'); // Redirect to login
           }
         }
-      } else {
-        setUserRole(null); // Reset if user logs out
-      }
+    
     };
 
     fetchUserRole();
@@ -126,7 +122,7 @@ export default function Header() {
           <BsFillCaretDownFill
             className={`w-5 h-5 cursor-pointer transform transition-transform ${isMenuOpen ? "rotate-180" : ""
               }`}
-            onClick={() => setIsMenuOpen(false)}
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
           />
           <button onClick={logout} className="sm:flex hidden px-3 py-2 bg-red-600 hover:bg-orange-500 text-white rounded-md items-center gap-2">
             Log out <RxExit />
