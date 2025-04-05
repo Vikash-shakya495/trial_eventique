@@ -19,9 +19,18 @@ export default function Header() {
   useEffect(() => {
     const fetchUserRole = async () => {
       if (user) {
-        
+        const token = user.token || localStorage.getItem('authToken'); // Retrieve token from user object or local storage
+        if (!token) {
+          console.error("No token found");
+          return;
+        }
+
         try {
-          const response = await axios.get("/profile");
+          const response = await axios.get("/profile", {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
           const role = response?.data?.role;
           if (role) {
             setUserRole(role);
