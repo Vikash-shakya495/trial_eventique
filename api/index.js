@@ -42,7 +42,8 @@ const io = socketIo(server, {
 // app.use(cors());
 const allowedOrigins = [
    "https://eventique-004-event-booking-system.vercel.app",
-   "https://trial-eventique-001-event-booking-system.vercel.app"
+   "https://trial-eventique-001-event-booking-system.vercel.app",
+   // "http://localhost:5173"
  ];
  
  app.use(cors({
@@ -170,25 +171,24 @@ app.post("/login", async (req, res) => {
 
 app.get("/profile", (req, res) => {
    const { token } = req.cookies;
-   if (token) {
-      jwt.verify(token, jwtSecret, {}, async (err, userData) => {
-         if (err) {
-            return res.status(401).json({ error: "Invalid token" });
-         }
 
-         // Find the user by ID
-         const user = await UserModel.findById(userData.id);
-         if (!user) {
-            return res.status(404).json({ error: "User  not found" });
-         }
-
-         // Destructure user properties
-         const { name, email, _id, role } = user;
-         res.json({ name, email, _id, role });
-      });
-   } else {
-      res.json(null);
+   if (!token) {
+      return res.status(401).json({ error: "No token provided" });
    }
+
+   jwt.verify(token, jwtSecret, {}, async (err, userData) => {
+      if (err) {
+         return res.status(401).json({ error: "Invalid token" });
+      }
+
+      const user = await UserModel.findById(userData.id);
+      if (!user) {
+         return res.status(404).json({ error: "User not found" });
+      }
+
+      const { name, email, _id, role } = user;
+      res.status(200).json({ name, email, _id, role });
+   });
 });
 
 

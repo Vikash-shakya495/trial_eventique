@@ -13,19 +13,30 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
+  // setUserRole(user); // Assuming response.data has a 'role' property
+  // console.log("Good role: ", userRole)
   // Fetch user role from the server
   useEffect(() => {
     if (user) {
-      axios.get("/profile")
+      axios.get("/profile",{withCredentials: true})
         .then((response) => {
-          console.log("User  Role Fetched:", response.data);
-          setUserRole(response.data.role); // Assuming response.data has a 'role' property
+          const role = response?.data?.role;
+          if (role) {
+            setUserRole(role);
+            console.log("User Role Fetched:", role);
+          } else {
+            console.warn("Role not found in response", response.data);
+            setUserRole(null);
+          }
         })
         .catch((err) => {
           console.error("Error in fetching user profile", err);
         });
+    } else {
+      setUserRole(null); // ✅ Reset if user logs out
     }
   }, [user]);
+
 
   // Logout Function
   async function logout() {
@@ -87,8 +98,18 @@ export default function Header() {
       {/* User Info & Logout */}
       {!!user ? (
         <div className="flex items-center gap-4 ">
-          <Link to="/useraccount" className="text-white font-semibold">{user.name.toUpperCase()}</Link>
-          <BsFillCaretDownFill className="w-5 h-5 cursor-pointer hover:rotate-180 transition-all" onClick={() => setIsMenuOpen(!isMenuOpen)} />
+          {!!user?.name && (
+            <Link to="/useraccount" className="text-white font-semibold">
+              {user.name.toUpperCase()}
+            </Link>
+          )}
+          {/* <Link to="/useraccount" className="text-white font-semibold">{user.name.toUpperCase()}</Link> */}
+          {/* <BsFillCaretDownFill className="w-5 h-5 cursor-pointer hover:rotate-180 transition-all" onClick={() => setIsMenuOpen(!isMenuOpen)} /> */}
+          <BsFillCaretDownFill
+            className={`w-5 h-5 cursor-pointer transform transition-transform ${isMenuOpen ? "rotate-180" : ""
+              }`}
+            onClick={() => setIsMenuOpen(false)}
+          />
           <button onClick={logout} className="sm:flex hidden px-3 py-2 bg-red-600 hover:bg-orange-500 text-white rounded-md items-center gap-2">
             Log out <RxExit />
           </button>
