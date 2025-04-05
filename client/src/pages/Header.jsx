@@ -18,7 +18,13 @@ export default function Header() {
   // Fetch user role from the server
   useEffect(() => {
     if (user) {
-      axios.get("/profile",{withCredentials: true})
+      const token = user.token;
+      axios.get("/profile", {
+        headers: {
+          Authorization: `Bearer ${yourAccessToken}`
+        },
+        withCredentials: true
+      })
         .then((response) => {
           const role = response?.data?.role;
           if (role) {
@@ -30,7 +36,11 @@ export default function Header() {
           }
         })
         .catch((err) => {
-          console.error("Error in fetching user profile", err);
+          console.error("Error in fetching user profile", err.response ? err.response.data : err);
+          if (err.response && err.response.status === 401) {
+            setUser (null); // Clear user state
+            navigate('/login'); // Redirect to login
+          }
         });
     } else {
       setUserRole(null); // ✅ Reset if user logs out
