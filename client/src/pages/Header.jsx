@@ -21,7 +21,7 @@ export default function Header() {
       const token = user.token;
       axios.get("/profile", {
         headers: {
-          Authorization: `Bearer ${yourAccessToken}`
+          Authorization: `Bearer ${token}`
         },
         withCredentials: true
       })
