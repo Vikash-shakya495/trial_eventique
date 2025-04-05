@@ -43,7 +43,7 @@ const io = socketIo(server, {
 const allowedOrigins = [
    "https://eventique-004-event-booking-system.vercel.app",
    "https://trial-eventique-001-event-booking-system.vercel.app",
-   "http://localhost:5173"
+   // "http://localhost:5173"
 ];
 
 app.use(cors({
