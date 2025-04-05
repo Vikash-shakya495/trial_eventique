@@ -17,41 +17,49 @@ export default function Header() {
   // console.log("Good role: ", userRole)
   // Fetch user role from the server
   useEffect(() => {
-    if (user) {
-      const token = user.token;
-      axios.get("/profile", {
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
-        withCredentials: true
-      })
-        .then((response) => {
+    const fetchUserRole = async () => {
+      if (user) {
+        const token = user.token || localStorage.getItem('authToken'); // Retrieve token from user object or local storage
+        if (!token) {
+          console.error("No token found");
+          return;
+        }
+
+        try {
+          const response = await axios.get("/profile", {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
           const role = response?.data?.role;
           if (role) {
             setUserRole(role);
-            console.log("User Role Fetched:", role);
+            console.log("User  Role Fetched:", role);
           } else {
             console.warn("Role not found in response", response.data);
             setUserRole(null);
           }
-        })
-        .catch((err) => {
+        } catch (err) {
           console.error("Error in fetching user profile", err.response ? err.response.data : err);
           if (err.response && err.response.status === 401) {
             setUser (null); // Clear user state
             navigate('/login'); // Redirect to login
           }
-        });
-    } else {
-      setUserRole(null); // ✅ Reset if user logs out
-    }
-  }, [user]);
+        }
+      } else {
+        setUserRole(null); // Reset if user logs out
+      }
+    };
+
+    fetchUserRole();
+  }, [user, navigate, setUser ]);
 
 
   // Logout Function
   async function logout() {
     await axios.post('/logout');
     setUser(null);
+    localStorage.removeItem('authToken');
     navigate('/');
   }
 

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import axios from 'axios'
 import logo from '../assets/logo1.png';
@@ -11,9 +11,8 @@ export default function LoginPage() {
   const [redirect, setRedirect] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  // const {setUser} = useContext(UserContext);
   const setUser = useUserStore((state) => state.setUser)
-
+  const [errorMessage, setErrorMessage] = useState('');
 
   //! Fetch users from the server --------------------------------------------------------------
   useEffect(() => {
@@ -41,6 +40,7 @@ export default function LoginPage() {
         } else {
           // If the user didnt checked, remove their email from localStorage.
           localStorage.removeItem('rememberedEmail');
+          localStorage.removeItem('rememberedpass');
         }
 
         setRedirect(true)
