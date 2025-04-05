@@ -43,20 +43,20 @@ const io = socketIo(server, {
 const allowedOrigins = [
    "https://eventique-004-event-booking-system.vercel.app",
    "https://trial-eventique-001-event-booking-system.vercel.app",
-   // "http://localhost:5173"
- ];
- 
- app.use(cors({
+   "http://localhost:5173"
+];
+
+app.use(cors({
    origin: function (origin, callback) {
-     if (!origin || allowedOrigins.includes(origin)) {
-       callback(null, true);
-     } else {
-       callback(new Error("Not allowed by CORS"));
-     }
+      if (!origin || allowedOrigins.includes(origin)) {
+         callback(null, true);
+      } else {
+         callback(new Error("Not allowed by CORS"));
+      }
    },
    credentials: true
- }));
-app.use(cookieParser()); 
+}));
+app.use(cookieParser());
 
 
 mongoose.connect(process.env.MONGO_URL, {
@@ -88,7 +88,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 
-app.get('/',(req,res) => {
+app.get('/', (req, res) => {
    res.send("server is working");
 })
 app.get("/test", (req, res) => {
@@ -134,39 +134,51 @@ app.post("/register", async (req, res) => {
    }
 });
 
+const validateLogin = (req, res, next) => {
+   const { email, password } = req.body;
+   if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required." });
+   }
+   next();
+};
 
-app.post("/login", async (req, res) => {
+app.post("/login", validateLogin ,async (req, res) => {
    const { email, password } = req.body;
    // Input validation
    if (!email || !password) {
       return res.status(400).json({ error: "Email and password are required." });
    }
 
-   const userDoc = await UserModel.findOne({ email });
+   try {
+      const userDoc = await UserModel.findOne({ email });
 
-   if (!userDoc) {
-      return res.status(404).json({ error: "User not found" });
-   }
-
-   const passOk = bcrypt.compareSync(password, userDoc.password);
-   if (!passOk) {
-      return res.status(401).json({ error: "Invalid password" });
-   }
-
-   jwt.sign(
-      {
-         email: userDoc.email,
-         id: userDoc._id,
-      },
-      jwtSecret,
-      {},
-      (err, token) => {
-         if (err) {
-            return res.status(500).json({ error: "Failed to generate token" });
-         }
-         res.cookie("token", token).json(userDoc);
+      if (!userDoc) {
+         return res.status(404).json({ error: "User not found" });
       }
-   );
+
+      const passOk = bcrypt.compareSync(password, userDoc.password);
+      if (!passOk) {
+         return res.status(401).json({ error: "Invalid password" });
+      }
+
+      jwt.sign(
+         {
+            email: userDoc.email,
+            id: userDoc._id,
+         },
+         jwtSecret,
+         {},
+         (err, token) => {
+            if (err) {
+               return res.status(500).json({ error: "Failed to generate token" });
+            }
+            res.cookie("token", token).json(userDoc);
+         }
+      );
+   } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ error: "Internal server error" });
+   }
 });
 
 app.get("/profile", (req, res) => {
