@@ -12,23 +12,21 @@ export default function Header() {
   const [userRole, setUserRole] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
-  // // Fetch user role from the server
+
+  // setUserRole(user); // Assuming response.data has a 'role' property
+  // console.log("Good role: ", userRole)
+  // Fetch user role from the server
   useEffect(() => {
     const fetchUserRole = async () => {
-      const token = localStorage.getItem('token'); // Retrieve token from local storage
-      if (!token) {
-        console.error("No token found");
-        // navigate('/login'); // Redirect to login if no token
-        return;
-      }
-
+      if (user) {
+        // const token = user.token || localStorage.getItem('token'); // Retrieve token from user object or local storage
+        // if (!token) {
+        //   console.error("No token found");
+        //   return;
+        // }
 
         try {
-          const response = await axios.get("/profile", {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
+          const response = await axios.get("/profile");
           const role = response?.data?.role;
           if (role) {
             setUserRole(role);
@@ -40,22 +38,27 @@ export default function Header() {
         } catch (err) {
           console.error("Error in fetching user profile", err.response ? err.response.data : err);
           if (err.response && err.response.status === 401) {
-            setUser (null); // Clear user state
+            setUser(null); // Clear user state
             navigate('/login'); // Redirect to login
           }
+          else {
+            alert("An error occurred while fetching user role. Please try again later.");
+          }
         }
-    
+      } else {
+        setUserRole(null); // Reset if user logs out
+      }
     };
 
     fetchUserRole();
-  }, [user, navigate, setUser ]);
+  }, [navigate, setUser, user]);
 
 
   // Logout Function
   async function logout() {
     await axios.post('/logout');
     setUser(null);
-    localStorage.removeItem('authToken');
+    localStorage.removeItem('token');
     navigate('/');
   }
 
