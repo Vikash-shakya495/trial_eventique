@@ -26,7 +26,7 @@ export default function Header() {
       // }
 
       try {
-        const response = await axios.get("/profile");
+        const response = await axios.get("/profile",{ withCredentials: true });
         const role = response?.data?.role;
         if (role) {
           setUserRole(role);
