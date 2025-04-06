@@ -172,7 +172,7 @@ app.post("/login", validateLogin ,async (req, res) => {
             if (err) {
                return res.status(500).json({ error: "Failed to generate token" });
             }
-            res.cookie("token", token).json(userDoc);
+            res.cookie("token", token, { httpOnly: true, secure:true }).json(userDoc);
          }
       );
    } catch (error) {
