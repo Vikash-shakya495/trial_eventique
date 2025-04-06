@@ -18,36 +18,34 @@ export default function Header() {
   // Fetch user role from the server
   useEffect(() => {
     const fetchUserRole = async () => {
-      if (user) {
-        // const token = user.token || localStorage.getItem('token'); // Retrieve token from user object or local storage
-        // if (!token) {
-        //   console.error("No token found");
-        //   return;
-        // }
+      // if (user) {
+      // const token = user.token || localStorage.getItem('token'); // Retrieve token from user object or local storage
+      // if (!token) {
+      //   console.error("No token found");
+      //   return;
+      // }
 
-        try {
-          const response = await axios.get("/profile");
-          const role = response?.data?.role;
-          if (role) {
-            setUserRole(role);
-            console.log("User  Role Fetched:", role);
-          } else {
-            console.warn("Role not found in response", response.data);
-            setUserRole(null);
-          }
-        } catch (err) {
-          console.error("Error in fetching user profile", err.response ? err.response.data : err);
-          if (err.response && err.response.status === 401) {
-            setUser(null); // Clear user state
-            navigate('/login'); // Redirect to login
-          }
-          else {
-            alert("An error occurred while fetching user role. Please try again later.");
-          }
+      try {
+        const response = await axios.get("/profile");
+        const role = response?.data?.role;
+        if (role) {
+          setUserRole(role);
+          console.log("User  Role Fetched:", role);
+        } else {
+          console.warn("Role not found in response", response.data);
+          setUserRole(null);
         }
-      } else {
-        setUserRole(null); // Reset if user logs out
+      } catch (err) {
+        console.error("Error in fetching user profile", err.response ? err.response.data : err);
+        if (err.response && err.response.status === 401) {
+          setUser(null); // Clear user state
+          navigate('/login'); // Redirect to login
+        }
+        else {
+          alert("An error occurred while fetching user role. Please try again later.");
+        }
       }
+
     };
 
     fetchUserRole();
