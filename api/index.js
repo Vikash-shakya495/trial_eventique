@@ -172,6 +172,7 @@ app.post("/login", validateLogin ,async (req, res) => {
             if (err) {
                return res.status(500).json({ error: "Failed to generate token" });
             }
+            console.log("Generated token:", token);
             res.cookie("token", token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' }).json(userDoc);
             // console.log("Token after login:", req.cookies.token)
          }

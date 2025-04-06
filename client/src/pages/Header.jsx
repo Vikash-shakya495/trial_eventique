@@ -37,19 +37,21 @@ export default function Header() {
         }
       } catch (err) {
         console.error("Error in fetching user profile", err.response ? err.response.data : err);
-        if (err.response && err.response.status === 401) {
-          setUser(null); // Clear user state
-          navigate('/login'); // Redirect to login
-        }
-        else {
+        if (err.response) {
+          console.error("Error response data:", err.response.data); // Log the response data
+          if (err.response.status === 401) {
+             setUser (null); // Clear user state
+             navigate('/login'); // Redirect to login
+          }
+       } else {
           alert("An error occurred while fetching user role. Please try again later.");
-        }
+       }
       }
 
     };
 
     fetchUserRole();
-  }, [navigate, setUser, user]);
+  }, [navigate, setUser]);
 
 
   // Logout Function
