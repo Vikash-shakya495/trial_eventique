@@ -48,8 +48,10 @@ export default function ResetPassword({ email }) {
         </form>
         <p className="text-sm text-center mt-4">
           Remembered your password?
-          <span className="text-orange-400 cursor-pointer hover:underline" onClick={() => setStage('login')}>
-            Login
+          <span className="text-orange-400 cursor-pointer hover:underline">
+            <NavLink to='/login'>
+              Login
+            </NavLink>
           </span>
         </p>
       </div>
