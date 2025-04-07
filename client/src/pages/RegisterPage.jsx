@@ -41,7 +41,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex w-full  h-screen px-10 py-10 justify-between items-center bg-slate-900 text-white">
+    <div className="flex w-full  h-screen px-10 py-10 justify-between items-center bg-white text-white">
     {/* Left Section */}
     <div className="hidden lg:flex flex-col">
       <div className="flex flex-col gap-3">
@@ -56,14 +56,14 @@ export default function RegisterPage() {
     </div>
     
     {/* Right Section - Form */}
-    <div className="bg-gray-800 w-full sm:w-full md:w-1/2 lg:w-1/3 px-7 py-7 rounded-xl shadow-lg">
+    <div className="bg-gray-200 text-white w-full sm:w-full md:w-1/2 lg:w-1/3 px-7 py-7 rounded-xl shadow-lg">
       <form className="flex flex-col w-auto items-center" onSubmit={registerUser}>
         <h1 className='px-3 font-extrabold mb-5 text-blue-400 text-2xl'>Sign Up</h1>
 
-        <input type="text" placeholder="Name" className="input-et p-4 m-1 rounded-2xl bg-gray-700 text-white border border-gray-600" value={name} onChange={(e) => setName(e.target.value)} />
-        <input type="email" placeholder="Email" className="input-et p-4 m-1 rounded-2xl bg-gray-700 text-white border border-gray-600" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input type="password" placeholder="Password" className="input-et p-4 m-1 rounded-2xl bg-gray-700 text-white border border-gray-600" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <input type="password" placeholder="Confirm password" className="input-et p-4 m-1 rounded-2xl bg-gray-700 text-white border border-gray-600" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+        <input type="text" placeholder="Name" className="input-et p-4 m-1 rounded-2xl bg-gray-200 text-white border border-gray-600" value={name} onChange={(e) => setName(e.target.value)} />
+        <input type="email" placeholder="Email" className="input-et p-4 m-1 rounded-2xl bg-gray-200 text-white border border-gray-600" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <input type="password" placeholder="Password" className="input-et p-4 m-1 rounded-2xl bg-gray-200 text-white border border-gray-600" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <input type="password" placeholder="Confirm password" className="input-et p-4 m-1 rounded-2xl bg-gray-200 text-white border border-gray-600" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
 
         {/* Role Selection */}
         <select value={role} onChange={(e) => setRole(e.target.value)} className="input-et p-2 m-1 bg-gray-700 text-white border border-gray-600">

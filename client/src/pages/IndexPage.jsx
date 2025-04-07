@@ -80,7 +80,7 @@ export default function IndexPage() {
         </div>
 
         {/* Search Input */}
-        <div className="w-3/4 my-10 flex mx-auto border border-black ">
+        <div className="w-3/4 my-10 flex mx-auto border text-black border-black ">
           <input
             type="text"
             placeholder="Search events..."
