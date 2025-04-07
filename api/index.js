@@ -43,7 +43,7 @@ const io = socketIo(server, {
 const allowedOrigins = [
    "https://eventique-004-event-booking-system.vercel.app",
    "https://trial-eventique-001-event-booking-system.vercel.app",
-   // "http://localhost:5173"
+   "http://localhost:5173"
 ];
 
 app.use(cors({
@@ -173,7 +173,10 @@ app.post("/login", validateLogin ,async (req, res) => {
                return res.status(500).json({ error: "Failed to generate token" });
             }
             console.log("Generated token:", token);
-            res.cookie("token", token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' }).json(userDoc);
+            res.cookie("token", token, {
+               httpOnly: true, 
+               secure: process.env.NODE_ENV === 'production',
+               sameSite: 'None'  }).json(userDoc);
             // console.log("Token after login:", req.cookies.token)
          }
       );
@@ -192,6 +195,7 @@ app.get("/profile", (req, res) => {
 
    jwt.verify(token, jwtSecret, {}, async (err, userData) => {
       if (err) {
+         console.error("Token verification error : ",err);
          return res.status(401).json({ error: "Invalid token" });
       }
 
@@ -208,7 +212,7 @@ app.get("/profile", (req, res) => {
 
 
 app.post("/logout", (req, res) => {
-   res.cookie("token", "", { httpOnly: true, secure: process.env.NODE_ENV === 'production' }).json(true);
+   res.cookie("token", "", { httpOnly: true, secure: process.env.NODE_ENV === 'production' ,sameSite: 'None'  }).json(true);
 });
 
 app.post("/auth/forgot-password", async (req, res) => {

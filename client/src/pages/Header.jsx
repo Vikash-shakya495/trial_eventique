@@ -13,17 +13,9 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  // setUserRole(user); // Assuming response.data has a 'role' property
-  // console.log("Good role: ", userRole)
-  // Fetch user role from the server
+ 
   useEffect(() => {
     const fetchUserRole = async () => {
-      // if (user) {
-      // const token = user.token || localStorage.getItem('token'); // Retrieve token from user object or local storage
-      // if (!token) {
-      //   console.error("No token found");
-      //   return;
-      // }
 
       try {
         const response = await axios.get("/profile",{ withCredentials: true });
