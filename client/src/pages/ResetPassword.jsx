@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { NavLink } from 'react-router-dom'
 
 export default function ResetPassword({ email }) {
   const [password, setPassword] = useState('');
@@ -48,7 +49,7 @@ export default function ResetPassword({ email }) {
         </form>
         <p className="text-sm text-center mt-4">
           Remembered your password?
-          <span className="text-orange-400 cursor-pointer hover:underline">
+          <span className="text-orange-400 cursor-pointer hover:underline" onClick={() => setStage('login')}>
             <NavLink to='/login'>
               Login
             </NavLink>
